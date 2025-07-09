@@ -40,7 +40,7 @@
 
 ## 2. Decisiones técnicas, funcionales, lo que se hizo y se asumió
 
-* Se armó un prototipo inicial con las siguientes tecnologías:
+Se armó un prototipo inicial con las siguientes tecnologías:
   * **v0:** No-code tool muy fácil de usar, intuitiva y perfecta para armar prototipos funcionales rápido
   * **Supabase:** Fácil integración con v0 y buen dashboard para visualización de datos
   * **Vercel:** Fácil integración con el resto del stack, fácil despliegue, buen ecosistema
