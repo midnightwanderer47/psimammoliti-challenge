@@ -15,7 +15,7 @@ import { StatusBanner } from "@/components/status-banner"
 import { FilterSection } from "@/components/filter-section"
 import { EmptyState } from "@/components/empty-state"
 
-const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+const dayNames = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 
 export default function PsychologyApp() {
   const [psychologists, setPsychologists] = useState<PsychologistWithSpecialties[]>([])
@@ -125,25 +125,44 @@ export default function PsychologyApp() {
     if (!userTimezone) return false
 
     try {
-      // Get current time in user's timezone
-      const now = new Date()
-      const currentTimeInUserTZ = new Date(now.toLocaleString("en-US", { timeZone: userTimezone }))
-
-      // Create slot datetime in user's timezone
+      // Parse the time slot
       const [hours, minutes] = timeSlot.split(":").map(Number)
       if (isNaN(hours) || isNaN(minutes)) return false
 
-      // Create the slot date/time in user's timezone
+      // Create a date object for the slot in the user's timezone
+      // We need to create the date string in the user's timezone
       const slotDate = new Date(date)
-      const slotDateString = slotDate.toISOString().split("T")[0] // YYYY-MM-DD
-      const slotTimeString = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
+      const year = slotDate.getFullYear()
+      const month = slotDate.getMonth() + 1
+      const day = slotDate.getDate()
+      
+      // Create a date string in the user's timezone
+      const slotDateString = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+      const slotTimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`
+      
+      // Create the full datetime string in the user's timezone
+      const slotDateTimeString = `${slotDateString}T${slotTimeString}`
+      
+      // Create a Date object that represents this time in the user's timezone
+      // We'll use the Intl.DateTimeFormat to ensure proper timezone handling
+      const slotDateTime = new Date(slotDateTimeString + 'Z') // Add Z to treat as UTC
+      
+      // Get current time
+      const now = new Date()
+      
+      // For debugging
+      if (process.env.NODE_ENV === "development") {
+        console.log("Slot time check:", {
+          slotDateTimeString,
+          slotDateTime: slotDateTime.toISOString(),
+          now: now.toISOString(),
+          userTimezone,
+          timeSlot,
+          isPast: slotDateTime < now
+        })
+      }
 
-      // Create a proper datetime string and convert to user's timezone
-      const slotDateTimeString = `${slotDateString}T${slotTimeString}:00`
-      const slotDateTime = new Date(slotDateTimeString)
-      const slotInUserTZ = new Date(slotDateTime.toLocaleString("en-US", { timeZone: userTimezone }))
-
-      return slotInUserTZ < currentTimeInUserTZ
+      return slotDateTime < now
     } catch (error) {
       console.error("Error checking if slot is in past:", error)
       return false // If there's an error, don't filter out the slot
