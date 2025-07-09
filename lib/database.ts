@@ -1,6 +1,6 @@
 import { supabase } from "./supabase"
 import { fetchRandomUser } from "./randomuser"
-import type { PsychologistWithSpecialties, AnalyticsData, Session } from "./supabase"
+import type { PsychologistWithSpecialties, Session } from "./supabase"
 
 // Enhanced fallback data with more realistic information
 const fallbackSpecialties = [
@@ -416,6 +416,162 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
         { id: 91, psychologist_id: 30, day_of_week: 6, time_slot: "11:00", is_available: true, modality: "presencial" },
       ],
     },
+    // Add 4 psychologists who only offer in-person sessions
+    {
+      id: 31,
+      specialtyIds: [1, 11, 4],
+      rating: 4.8,
+      experience: "9 años",
+      price: 80,
+      description: "Especialista en terapia presencial con enfoque en contacto directo y comunicación no verbal.",
+      available_slots: [
+        { id: 92, psychologist_id: 31, day_of_week: 1, time_slot: "09:00", is_available: true, modality: "presencial" },
+        { id: 93, psychologist_id: 31, day_of_week: 2, time_slot: "11:00", is_available: true, modality: "presencial" },
+        { id: 94, psychologist_id: 31, day_of_week: 4, time_slot: "14:00", is_available: true, modality: "presencial" },
+        { id: 95, psychologist_id: 31, day_of_week: 5, time_slot: "16:30", is_available: true, modality: "presencial" },
+      ],
+    },
+    {
+      id: 32,
+      specialtyIds: [1, 9, 3],
+      rating: 4.6,
+      experience: "12 años",
+      price: 88,
+      description:
+        "Psicóloga especializada en terapia presencial para fobias y trauma con técnicas de exposición directa.",
+      available_slots: [
+        { id: 96, psychologist_id: 32, day_of_week: 1, time_slot: "10:30", is_available: true, modality: "presencial" },
+        { id: 97, psychologist_id: 32, day_of_week: 3, time_slot: "13:30", is_available: true, modality: "presencial" },
+        { id: 98, psychologist_id: 32, day_of_week: 5, time_slot: "15:00", is_available: true, modality: "presencial" },
+      ],
+    },
+    {
+      id: 33,
+      specialtyIds: [5, 4, 11],
+      rating: 4.9,
+      experience: "15 años",
+      price: 95,
+      description:
+        "Terapeuta familiar que trabaja exclusivamente de forma presencial para terapia de pareja y familiar.",
+      available_slots: [
+        { id: 99, psychologist_id: 33, day_of_week: 2, time_slot: "08:30", is_available: true, modality: "presencial" },
+        {
+          id: 100,
+          psychologist_id: 33,
+          day_of_week: 3,
+          time_slot: "16:00",
+          is_available: true,
+          modality: "presencial",
+        },
+        {
+          id: 101,
+          psychologist_id: 33,
+          day_of_week: 6,
+          time_slot: "10:00",
+          is_available: true,
+          modality: "presencial",
+        },
+        {
+          id: 102,
+          psychologist_id: 33,
+          day_of_week: 6,
+          time_slot: "14:30",
+          is_available: true,
+          modality: "presencial",
+        },
+      ],
+    },
+    {
+      id: 34,
+      specialtyIds: [2, 8, 7],
+      rating: 4.7,
+      experience: "8 años",
+      price: 82,
+      description: "Especialista en terapia presencial para depresión y duelo con enfoque humanístico.",
+      available_slots: [
+        {
+          id: 103,
+          psychologist_id: 34,
+          day_of_week: 1,
+          time_slot: "12:00",
+          is_available: true,
+          modality: "presencial",
+        },
+        {
+          id: 104,
+          psychologist_id: 34,
+          day_of_week: 4,
+          time_slot: "09:30",
+          is_available: true,
+          modality: "presencial",
+        },
+        {
+          id: 105,
+          psychologist_id: 34,
+          day_of_week: 5,
+          time_slot: "17:00",
+          is_available: true,
+          modality: "presencial",
+        },
+      ],
+    },
+    // Add 4 psychologists who only offer online sessions
+    {
+      id: 35,
+      specialtyIds: [3, 6, 7],
+      rating: 4.5,
+      experience: "6 años",
+      price: 70,
+      description: "Psicólogo digital especializado en terapia online para ansiedad social y estrés laboral.",
+      available_slots: [
+        { id: 106, psychologist_id: 35, day_of_week: 1, time_slot: "08:00", is_available: true, modality: "online" },
+        { id: 107, psychologist_id: 35, day_of_week: 2, time_slot: "14:30", is_available: true, modality: "online" },
+        { id: 108, psychologist_id: 35, day_of_week: 4, time_slot: "16:00", is_available: true, modality: "online" },
+        { id: 109, psychologist_id: 35, day_of_week: 6, time_slot: "11:30", is_available: true, modality: "online" },
+      ],
+    },
+    {
+      id: 36,
+      specialtyIds: [10, 7, 6],
+      rating: 4.8,
+      experience: "10 años",
+      price: 85,
+      description:
+        "Especialista en terapia online con amplia experiencia en plataformas digitales para burnout y autoestima.",
+      available_slots: [
+        { id: 110, psychologist_id: 36, day_of_week: 2, time_slot: "09:00", is_available: true, modality: "online" },
+        { id: 111, psychologist_id: 36, day_of_week: 3, time_slot: "12:30", is_available: true, modality: "online" },
+        { id: 112, psychologist_id: 36, day_of_week: 5, time_slot: "18:00", is_available: true, modality: "online" },
+      ],
+    },
+    {
+      id: 37,
+      specialtyIds: [11, 4, 5],
+      rating: 4.6,
+      experience: "7 años",
+      price: 75,
+      description: "Terapeuta online especializada en comunicación y relaciones interpersonales a distancia.",
+      available_slots: [
+        { id: 113, psychologist_id: 37, day_of_week: 1, time_slot: "13:00", is_available: true, modality: "online" },
+        { id: 114, psychologist_id: 37, day_of_week: 3, time_slot: "15:30", is_available: true, modality: "online" },
+        { id: 115, psychologist_id: 37, day_of_week: 4, time_slot: "17:30", is_available: true, modality: "online" },
+        { id: 116, psychologist_id: 37, day_of_week: 6, time_slot: "10:30", is_available: true, modality: "online" },
+      ],
+    },
+    {
+      id: 38,
+      specialtyIds: [9, 1, 2],
+      rating: 4.9,
+      experience: "11 años",
+      price: 90,
+      description: "Psicóloga online senior especializada en trauma y fobias con terapia cognitivo-conductual digital.",
+      available_slots: [
+        { id: 117, psychologist_id: 38, day_of_week: 2, time_slot: "10:00", is_available: true, modality: "online" },
+        { id: 118, psychologist_id: 38, day_of_week: 4, time_slot: "12:00", is_available: true, modality: "online" },
+        { id: 119, psychologist_id: 38, day_of_week: 5, time_slot: "14:00", is_available: true, modality: "online" },
+        { id: 120, psychologist_id: 38, day_of_week: 6, time_slot: "16:30", is_available: true, modality: "online" },
+      ],
+    },
   ]
 
   // Fetch user data from Random User API for each psychologist
@@ -614,4 +770,3 @@ export async function bookSession(sessionData: {
     return { success: false, error: "Error interno del servidor" }
   }
 }
-
