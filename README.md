@@ -109,44 +109,36 @@ flowchart TD
 
 ### 2. Flujos cubiertos
 
-**Visualización de psicólogos**
+1. Visualización de psicólogos
 - Lista completa de psicólogos disponibles en tarjetas responsivas
 - Información detallada: nombre, foto, experiencia, calificación, especialidades, descripción, precio y modalidades
 - Indicadores de disponibilidad en cada tarjeta
 
-**Sistema de filtros y búsqueda**
+2. Sistema de filtros y búsqueda
 - Búsqueda en tiempo real por nombre o especialidad
 - Filtros por especialidad específica (Fobias, Depresión, Ansiedad Social, etc.)
 - Filtros por modalidad (Online/Presencial/Todas)
 - Badges visuales para filtros activos y contador de resultados
 
-**Sistema de reservas**
+3. Sistema de reservas
 - Calendario semanal con navegación entre semanas
 - Horarios mostrados en zona horaria local del usuario
 - Selección de modalidad (online/presencial) por slot
 - Formulario de paciente con validación
 - Resumen de cita antes de confirmar
 
-**Gestión de horarios**
+4. Gestión de horarios
 - Detección automática de zona horaria del navegador
 - Conversión de horarios UTC a hora local
 - Ocultación automática de horarios pasados
 - Indicadores visuales para diferentes estados de disponibilidad
 
-**Proceso de confirmación**
+5. Proceso de confirmación
 - Confirmación inmediata de reserva con modal detallado
 - Información específica según modalidad elegida
 - Instrucciones claras para el día de la sesión
 
-**Características técnicas**
+6. Características técnicas
 - Diseño completamente responsivo (desktop, tablet, móvil)
 - Interfaz en español con formatos localizados
 - Navegación por teclado y compatibilidad con lectores de pantalla
-
-**Lo que no se incluye en el MVP**
-- No incluye procesamiento de pagos
-- No requiere autenticación de usuario
-- No mantiene historial de reservas
-- No permite cancelaciones o modificaciones
-- No envía notificaciones automáticas
-- No incluye sistema de videollamadas integrado
