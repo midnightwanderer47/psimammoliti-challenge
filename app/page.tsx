@@ -420,7 +420,7 @@ export default function PsychologyApp() {
 
         {/* Booking Modal */}
         <Dialog open={!!selectedPsychologist} onOpenChange={() => setSelectedPsychologist(null)}>
-          <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto sm:max-w-7xl w-[95vw] sm:w-auto">
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto sm:max-w-5xl w-[95vw] sm:w-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl">Agendar Sesión - {selectedPsychologist?.name}</DialogTitle>
               <DialogDescription className="text-lg">
@@ -430,7 +430,7 @@ export default function PsychologyApp() {
 
             <div className="space-y-6">
               {/* Week Navigation */}
-              <div className="flex items-center justify-between p-3 sm:p-6 bg-muted rounded-lg gap-2">
+              <div className="flex items-center justify-between p-3 sm:p-4 bg-muted rounded-lg gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -462,7 +462,7 @@ export default function PsychologyApp() {
               {/* Calendar Grid */}
               <div className="space-y-4">
                 {/* Desktop Calendar - Hidden on mobile */}
-                <div className="hidden sm:grid sm:grid-cols-7 sm:gap-4 lg:gap-6">
+                <div className="hidden sm:grid sm:grid-cols-7 sm:gap-3">
                   {dayNames.map((dayName, index) => {
                     const availableSlots = selectedPsychologist
                       ? getAvailableSlotsForDay(selectedPsychologist, index, weekDates[index])
@@ -470,11 +470,11 @@ export default function PsychologyApp() {
 
                     return (
                       <div key={dayName} className="text-center">
-                        <div className="font-semibold text-sm mb-4 p-4 lg:p-5 bg-muted rounded-lg border">
+                        <div className="font-semibold text-sm mb-3 p-3 bg-muted rounded-lg border">
                           <div>{dayName}</div>
                           <div className="text-xs text-muted-foreground mt-1">{formatDate(weekDates[index])}</div>
                         </div>
-                        <div className="space-y-3 lg:space-y-4">
+                        <div className="space-y-2">
                           {availableSlots.map((slot, timeIndex) => {
                             const convertedTime = convertTimeToUserTimezone(slot.time_slot)
                             const slotData = {
@@ -493,7 +493,7 @@ export default function PsychologyApp() {
                               return (
                                 <div
                                   key={`${timeIndex}-${slot.modality}`}
-                                  className="w-full text-sm lg:text-base flex flex-col gap-1 h-auto py-3 lg:py-4 px-2 lg:px-3 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed"
+                                  className="w-full text-xs flex flex-col gap-1 h-auto py-2 px-2 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed"
                                 >
                                   <div className="font-medium">{convertedTime}</div>
                                   <div className="flex items-center gap-1 text-xs opacity-75">
@@ -513,7 +513,7 @@ export default function PsychologyApp() {
                                 key={`${timeIndex}-${slot.modality}`}
                                 variant={isSelected ? "default" : "outline"}
                                 size="sm"
-                                className="w-full text-sm lg:text-base flex flex-col gap-1 h-auto py-3 lg:py-4 px-2 lg:px-3"
+                                className="w-full text-xs flex flex-col gap-1 h-auto py-2"
                                 onClick={() => setSelectedSlot(slotData)}
                               >
                                 <div className="font-medium">{convertedTime}</div>
@@ -529,7 +529,7 @@ export default function PsychologyApp() {
                             )
                           })}
                           {availableSlots.length === 0 && (
-                            <div className="text-sm lg:text-base text-muted-foreground py-6 lg:py-8 bg-muted rounded border-2 border-dashed">
+                            <div className="text-xs text-muted-foreground py-4 bg-muted rounded border-2 border-dashed">
                               No disponible
                             </div>
                           )}
@@ -635,7 +635,7 @@ export default function PsychologyApp() {
                 <CardHeader>
                   <CardTitle className="text-lg">Información del Paciente</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="patientName">Nombre completo *</Label>
                     <Input
@@ -668,7 +668,7 @@ export default function PsychologyApp() {
                   <CardHeader>
                     <CardTitle className="text-lg">Resumen de tu Cita</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 text-sm lg:text-base">
+                  <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">Psicólogo:</span>
@@ -717,7 +717,7 @@ export default function PsychologyApp() {
 
               {/* CTA Button */}
               <Button
-                className="w-full h-12 lg:h-14 text-base lg:text-lg"
+                className="w-full h-12 sm:h-12 text-base sm:text-lg"
                 onClick={handleBookAppointment}
                 disabled={!selectedSlot || !patientName || !patientEmail || bookingLoading}
               >
