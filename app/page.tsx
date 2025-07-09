@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video } from "lucide-react"
+import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video, MapPin } from "lucide-react"
 import { getPsychologists, getSpecialties, bookSession } from "@/lib/database"
 import type { PsychologistWithSpecialties, Specialty } from "@/lib/supabase"
 import { PsychologistCard } from "@/components/psychologist-card"
@@ -21,6 +21,7 @@ export default function PsychologyApp() {
   const [psychologists, setPsychologists] = useState<PsychologistWithSpecialties[]>([])
   const [specialties, setSpecialties] = useState<Specialty[]>([])
   const [selectedSpecialty, setSelectedSpecialty] = useState("Todas")
+  const [selectedModality, setSelectedModality] = useState("Todas")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedPsychologist, setSelectedPsychologist] = useState<PsychologistWithSpecialties | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<any>(null)
@@ -72,6 +73,13 @@ export default function PsychologyApp() {
       filtered = filtered.filter((p) => p.specialties.some((s) => s.name === selectedSpecialty))
     }
 
+    // Filter by modality
+    if (selectedModality !== "Todas") {
+      filtered = filtered.filter((p) =>
+        p.available_slots.some((slot) => slot.modality === selectedModality && slot.is_available),
+      )
+    }
+
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
@@ -84,10 +92,11 @@ export default function PsychologyApp() {
     }
 
     return filtered
-  }, [psychologists, selectedSpecialty, searchQuery])
+  }, [psychologists, selectedSpecialty, selectedModality, searchQuery])
 
   const resetFilters = () => {
     setSelectedSpecialty("Todas")
+    setSelectedModality("Todas")
     setSearchQuery("")
   }
 
@@ -188,7 +197,7 @@ export default function PsychologyApp() {
         specialty_id: selectedPsychologist.specialties[0].id,
         session_date: selectedSlot.date.toISOString().split("T")[0],
         session_time: selectedSlot.originalTime,
-        modality: "online",
+        modality: selectedSlot.modality,
         price: selectedPsychologist.price,
       }
 
@@ -230,7 +239,10 @@ export default function PsychologyApp() {
   const getAvailableSlotsForDay = (psychologist: PsychologistWithSpecialties, dayOfWeek: number) => {
     return psychologist.available_slots
       .filter((slot) => slot.day_of_week === dayOfWeek && slot.is_available)
-      .map((slot) => slot.time_slot)
+      .map((slot) => ({
+        time_slot: slot.time_slot,
+        modality: slot.modality,
+      }))
   }
 
   const weekDates = getWeekDates(currentWeek)
@@ -277,6 +289,10 @@ export default function PsychologyApp() {
               <span>Sesiones Online</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4" />
+              <span>Sesiones Presenciales</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
               <span>Disponible 24/7</span>
             </div>
@@ -309,6 +325,8 @@ export default function PsychologyApp() {
           onSpecialtyChange={setSelectedSpecialty}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          selectedModality={selectedModality}
+          onModalityChange={setSelectedModality}
           resultCount={filteredPsychologists.length}
         />
 
@@ -333,7 +351,7 @@ export default function PsychologyApp() {
             <DialogHeader>
               <DialogTitle className="text-2xl">Agendar Sesión - {selectedPsychologist?.name}</DialogTitle>
               <DialogDescription className="text-lg">
-                ${selectedPsychologist?.price} USD por sesión de 50 minutos • Modalidad online
+                ${selectedPsychologist?.price} USD por sesión de 50 minutos
               </DialogDescription>
             </DialogHeader>
 
@@ -372,27 +390,37 @@ export default function PsychologyApp() {
                         <div className="text-xs text-muted-foreground mt-1">{formatDate(weekDates[index])}</div>
                       </div>
                       <div className="space-y-2">
-                        {availableSlots.map((time, timeIndex) => {
-                          const convertedTime = convertTimeToUserTimezone(time)
+                        {availableSlots.map((slot, timeIndex) => {
+                          const convertedTime = convertTimeToUserTimezone(slot.time_slot)
                           const slotData = {
                             date: weekDates[index],
-                            originalTime: time,
+                            originalTime: slot.time_slot,
                             convertedTime: convertedTime,
                             day: dayName,
+                            modality: slot.modality,
                           }
                           const isSelected =
-                            selectedSlot?.originalTime === time &&
-                            selectedSlot?.date.toDateString() === weekDates[index].toDateString()
+                            selectedSlot?.originalTime === slot.time_slot &&
+                            selectedSlot?.date.toDateString() === weekDates[index].toDateString() &&
+                            selectedSlot?.modality === slot.modality
 
                           return (
                             <Button
-                              key={timeIndex}
+                              key={`${timeIndex}-${slot.modality}`}
                               variant={isSelected ? "default" : "outline"}
                               size="sm"
-                              className="w-full text-xs"
+                              className="w-full text-xs flex flex-col gap-1 h-auto py-2"
                               onClick={() => setSelectedSlot(slotData)}
                             >
-                              {convertedTime}
+                              <div className="font-medium">{convertedTime}</div>
+                              <div className="flex items-center gap-1 text-xs opacity-75">
+                                {slot.modality === "online" ? (
+                                  <Video className="h-3 w-3" />
+                                ) : (
+                                  <MapPin className="h-3 w-3" />
+                                )}
+                                {slot.modality === "online" ? "Online" : "Presencial"}
+                              </div>
                             </Button>
                           )
                         })}
@@ -474,7 +502,14 @@ export default function PsychologyApp() {
                       </div>
                       <div>
                         <span className="text-muted-foreground">Modalidad:</span>
-                        <div className="font-medium">Sesión Online</div>
+                        <div className="font-medium flex items-center gap-2">
+                          {selectedSlot.modality === "online" ? (
+                            <Video className="h-4 w-4" />
+                          ) : (
+                            <MapPin className="h-4 w-4" />
+                          )}
+                          {selectedSlot.modality === "online" ? "Sesión Online" : "Sesión Presencial"}
+                        </div>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Precio:</span>
@@ -545,8 +580,14 @@ export default function PsychologyApp() {
                       <span className="font-medium">Hora:</span> {bookedAppointment.slot.convertedTime} (
                       {bookedAppointment.userTimezone})
                     </div>
-                    <div>
-                      <span className="font-medium">Modalidad:</span> Sesión Online
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Modalidad:</span>
+                      {bookedAppointment.slot.modality === "online" ? (
+                        <Video className="h-4 w-4" />
+                      ) : (
+                        <MapPin className="h-4 w-4" />
+                      )}
+                      {bookedAppointment.slot.modality === "online" ? "Sesión Online" : "Sesión Presencial"}
                     </div>
                     <div>
                       <span className="font-medium">Precio:</span> ${bookedAppointment.psychologist.price} USD
@@ -560,8 +601,16 @@ export default function PsychologyApp() {
                   </p>
                   <ul className="list-disc list-inside space-y-1">
                     <li>Recibirás un email de confirmación en los próximos minutos</li>
-                    <li>Te enviaremos el enlace de la videollamada 30 minutos antes de tu cita</li>
-                    <li>Asegúrate de tener una conexión estable a internet</li>
+                    {bookedAppointment.slot.modality === "online" ? (
+                      <li>Te enviaremos el enlace de la videollamada 30 minutos antes de tu cita</li>
+                    ) : (
+                      <li>Te enviaremos la dirección del consultorio y las indicaciones de acceso</li>
+                    )}
+                    <li>
+                      {bookedAppointment.slot.modality === "online"
+                        ? "Asegúrate de tener una conexión estable a internet"
+                        : "Llega 10 minutos antes de tu cita al consultorio"}
+                    </li>
                   </ul>
                 </div>
 

@@ -116,68 +116,68 @@ INSERT INTO psychologist_specialties (psychologist_id, specialty_id) VALUES
 -- Psychologist 30: Fobias, Estrés Laboral, Duelo
 (30, 1), (30, 6), (30, 8);
 
--- Insert available slots for all 30 psychologists (3-4 slots each, distributed across the week)
-INSERT INTO available_slots (psychologist_id, day_of_week, time_slot, is_available) VALUES
--- Psychologist 1
-(1, 1, '09:00', true), (1, 1, '10:30', true), (1, 2, '14:00', true), (1, 3, '16:00', true),
--- Psychologist 2
-(2, 1, '16:00', true), (2, 2, '09:30', true), (2, 4, '11:00', true),
--- Psychologist 3
-(3, 2, '15:30', true), (3, 3, '10:00', true), (3, 5, '14:30', true),
--- Psychologist 4
-(4, 1, '11:30', true), (4, 3, '13:00', true), (4, 4, '15:00', true),
--- Psychologist 5
-(5, 2, '08:30', true), (5, 4, '17:00', true), (5, 5, '12:00', true),
--- Psychologist 6
-(6, 1, '13:30', true), (6, 3, '09:00', true), (6, 5, '16:30', true),
--- Psychologist 7
-(7, 1, '14:00', true), (7, 2, '16:30', true), (7, 4, '10:30', true),
--- Psychologist 8
-(8, 2, '11:00', true), (8, 3, '15:00', true), (8, 5, '09:30', true),
--- Psychologist 9
-(9, 1, '15:30', true), (9, 3, '11:30', true), (9, 6, '10:00', true),
--- Psychologist 10
-(10, 2, '13:30', true), (10, 4, '14:30', true), (10, 5, '11:00', true),
--- Psychologist 11
-(11, 1, '08:00', true), (11, 3, '17:30', true), (11, 5, '13:00', true),
--- Psychologist 12
-(12, 2, '10:00', true), (12, 4, '16:00', true), (12, 6, '11:30', true),
--- Psychologist 13
-(13, 1, '12:00', true), (13, 3, '14:00', true), (13, 5, '15:30', true),
--- Psychologist 14
-(14, 2, '08:30', true), (14, 4, '12:30', true), (14, 6, '14:00', true),
--- Psychologist 15
-(15, 1, '17:00', true), (15, 3, '09:30', true), (15, 5, '10:30', true),
--- Psychologist 16
-(16, 2, '12:00', true), (16, 4, '09:00', true), (16, 6, '15:00', true),
--- Psychologist 17
-(17, 1, '10:00', true), (17, 3, '16:30', true), (17, 5, '14:00', true),
--- Psychologist 18
-(18, 2, '14:30', true), (18, 4, '11:30', true), (18, 6, '09:30', true),
--- Psychologist 19
-(19, 1, '14:30', true), (19, 3, '12:30', true), (19, 5, '16:00', true),
--- Psychologist 20
-(20, 2, '17:00', true), (20, 4, '08:30', true), (20, 6, '12:30', true),
--- Psychologist 21
-(21, 1, '11:00', true), (21, 3, '15:30', true), (21, 5, '17:30', true),
--- Psychologist 22
-(22, 2, '09:00', true), (22, 4, '13:30', true), (22, 6, '16:30', true),
--- Psychologist 23
-(23, 1, '16:30', true), (23, 3, '10:30', true), (23, 5, '11:30', true),
--- Psychologist 24
-(24, 2, '11:30', true), (24, 4, '15:00', true), (24, 6, '13:30', true),
--- Psychologist 25
-(25, 1, '13:00', true), (25, 3, '08:30', true), (25, 5, '15:00', true),
--- Psychologist 26
-(26, 2, '15:00', true), (26, 4, '10:00', true), (26, 6, '17:00', true),
--- Psychologist 27
-(27, 1, '09:30', true), (27, 3, '14:30', true), (27, 5, '12:30', true),
--- Psychologist 28
-(28, 2, '16:00', true), (28, 4, '12:00', true), (28, 6, '10:30', true),
--- Psychologist 29
-(29, 1, '15:00', true), (29, 3, '11:00', true), (29, 5, '09:00', true),
--- Psychologist 30
-(30, 2, '13:00', true), (30, 4, '17:30', true), (30, 6, '11:00', true);
+-- Insert available slots for all 30 psychologists with mixed modalities (online and presencial)
+INSERT INTO available_slots (psychologist_id, day_of_week, time_slot, modality, is_available) VALUES
+-- Psychologist 1 - Mixed modalities
+(1, 1, '09:00', 'online', true), (1, 1, '10:30', 'presencial', true), (1, 2, '14:00', 'online', true), (1, 3, '16:00', 'online', true),
+-- Psychologist 2 - Mixed modalities
+(2, 1, '16:00', 'presencial', true), (2, 2, '09:30', 'online', true), (2, 4, '11:00', 'presencial', true),
+-- Psychologist 3 - Mixed modalities
+(3, 2, '15:30', 'online', true), (3, 3, '10:00', 'online', true), (3, 5, '14:30', 'presencial', true),
+-- Psychologist 4 - Mixed modalities
+(4, 1, '11:30', 'presencial', true), (4, 3, '13:00', 'online', true), (4, 4, '15:00', 'presencial', true),
+-- Psychologist 5 - Mixed modalities
+(5, 2, '08:30', 'online', true), (5, 4, '17:00', 'online', true), (5, 5, '12:00', 'presencial', true),
+-- Psychologist 6 - Mixed modalities
+(6, 1, '13:30', 'online', true), (6, 3, '09:00', 'presencial', true), (6, 5, '16:30', 'online', true),
+-- Psychologist 7 - Mixed modalities
+(7, 1, '14:00', 'online', true), (7, 2, '16:30', 'presencial', true), (7, 4, '10:30', 'online', true),
+-- Psychologist 8 - Mixed modalities
+(8, 2, '11:00', 'presencial', true), (8, 3, '15:00', 'online', true), (8, 5, '09:30', 'presencial', true),
+-- Psychologist 9 - Mixed modalities
+(9, 1, '15:30', 'online', true), (9, 3, '11:30', 'presencial', true), (9, 6, '10:00', 'online', true),
+-- Psychologist 10 - Mixed modalities
+(10, 2, '13:30', 'online', true), (10, 4, '14:30', 'online', true), (10, 5, '11:00', 'presencial', true),
+-- Psychologist 11 - Mixed modalities
+(11, 1, '08:00', 'presencial', true), (11, 3, '17:30', 'online', true), (11, 5, '13:00', 'presencial', true),
+-- Psychologist 12 - Mixed modalities
+(12, 2, '10:00', 'online', true), (12, 4, '16:00', 'online', true), (12, 6, '11:30', 'presencial', true),
+-- Psychologist 13 - Mixed modalities
+(13, 1, '12:00', 'presencial', true), (13, 3, '14:00', 'presencial', true), (13, 5, '15:30', 'online', true),
+-- Psychologist 14 - Mixed modalities
+(14, 2, '08:30', 'online', true), (14, 4, '12:30', 'presencial', true), (14, 6, '14:00', 'online', true),
+-- Psychologist 15 - Mixed modalities
+(15, 1, '17:00', 'online', true), (15, 3, '09:30', 'presencial', true), (15, 5, '10:30', 'online', true),
+-- Psychologist 16 - Mixed modalities
+(16, 2, '12:00', 'presencial', true), (16, 4, '09:00', 'online', true), (16, 6, '15:00', 'presencial', true),
+-- Psychologist 17 - Mixed modalities
+(17, 1, '10:00', 'presencial', true), (17, 3, '16:30', 'online', true), (17, 5, '14:00', 'presencial', true),
+-- Psychologist 18 - Mixed modalities
+(18, 2, '14:30', 'online', true), (18, 4, '11:30', 'online', true), (18, 6, '09:30', 'presencial', true),
+-- Psychologist 19 - Mixed modalities
+(19, 1, '14:30', 'online', true), (19, 3, '12:30', 'presencial', true), (19, 5, '16:00', 'online', true),
+-- Psychologist 20 - Mixed modalities
+(20, 2, '17:00', 'online', true), (20, 4, '08:30', 'presencial', true), (20, 6, '12:30', 'online', true),
+-- Psychologist 21 - Mixed modalities
+(21, 1, '11:00', 'presencial', true), (21, 3, '15:30', 'online', true), (21, 5, '17:30', 'presencial', true),
+-- Psychologist 22 - Mixed modalities
+(22, 2, '09:00', 'online', true), (22, 4, '13:30', 'online', true), (22, 6, '16:30', 'presencial', true),
+-- Psychologist 23 - Mixed modalities
+(23, 1, '16:30', 'presencial', true), (23, 3, '10:30', 'online', true), (23, 5, '11:30', 'presencial', true),
+-- Psychologist 24 - Mixed modalities
+(24, 2, '11:30', 'online', true), (24, 4, '15:00', 'presencial', true), (24, 6, '13:30', 'online', true),
+-- Psychologist 25 - Mixed modalities
+(25, 1, '13:00', 'online', true), (25, 3, '08:30', 'presencial', true), (25, 5, '15:00', 'online', true),
+-- Psychologist 26 - Mixed modalities
+(26, 2, '15:00', 'presencial', true), (26, 4, '10:00', 'online', true), (26, 6, '17:00', 'presencial', true),
+-- Psychologist 27 - Mixed modalities
+(27, 1, '09:30', 'online', true), (27, 3, '14:30', 'online', true), (27, 5, '12:30', 'presencial', true),
+-- Psychologist 28 - Mixed modalities
+(28, 2, '16:00', 'presencial', true), (28, 4, '12:00', 'online', true), (28, 6, '10:30', 'presencial', true),
+-- Psychologist 29 - Mixed modalities
+(29, 1, '15:00', 'online', true), (29, 3, '11:00', 'presencial', true), (29, 5, '09:00', 'online', true),
+-- Psychologist 30 - Mixed modalities
+(30, 2, '13:00', 'presencial', true), (30, 4, '17:30', 'online', true), (30, 6, '11:00', 'presencial', true);
 
 -- Insert sample patients (50 patients - 5x the original 10)
 INSERT INTO patients (id, name, email, timezone) VALUES

@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Star, MapPin, Clock, Award } from "lucide-react"
+import { Calendar, Star, MapPin, Clock, Award, Video } from "lucide-react"
 import Image from "next/image"
 import type { PsychologistWithSpecialties } from "@/lib/supabase"
 
@@ -13,6 +13,9 @@ interface PsychologistCardProps {
 }
 
 export function PsychologistCard({ psychologist, onViewAvailability }: PsychologistCardProps) {
+  // Get unique modalities available for this psychologist
+  const availableModalities = [...new Set(psychologist.available_slots.map((slot) => slot.modality))]
+
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
       <CardHeader className="text-center pb-4">
@@ -79,6 +82,24 @@ export function PsychologistCard({ psychologist, onViewAvailability }: Psycholog
         {/* Description */}
         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{psychologist.description}</p>
 
+        {/* Available Modalities */}
+        <div>
+          <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Modalidades disponibles
+          </h4>
+          <div className="flex gap-2">
+            {availableModalities.map((modality) => (
+              <Badge key={modality} variant="outline" className="text-xs px-2 py-1">
+                <div className="flex items-center gap-1">
+                  {modality === "online" ? <Video className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
+                  {modality === "online" ? "Online" : "Presencial"}
+                </div>
+              </Badge>
+            ))}
+          </div>
+        </div>
+
         {/* Availability indicator */}
         <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 p-2 rounded-lg">
           <Clock className="h-3 w-3" />
@@ -93,8 +114,14 @@ export function PsychologistCard({ psychologist, onViewAvailability }: Psycholog
               <div className="text-xs text-muted-foreground">por sesión de 50 min</div>
             </div>
             <div className="text-right">
-              <div className="text-xs text-muted-foreground">Modalidad</div>
-              <div className="text-sm font-medium">Online</div>
+              <div className="text-xs text-muted-foreground">Modalidades</div>
+              <div className="text-sm font-medium">
+                {availableModalities.length === 2
+                  ? "Online + Presencial"
+                  : availableModalities[0] === "online"
+                    ? "Online"
+                    : "Presencial"}
+              </div>
             </div>
           </div>
 

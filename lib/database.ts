@@ -20,7 +20,7 @@ const fallbackSpecialties = [
 // Function to create fallback psychologists with Random User API data
 async function createFallbackPsychologists(): Promise<PsychologistWithSpecialties[]> {
   const psychologistTemplates = [
-    // Original 6 psychologists
+    // Original 6 psychologists with mixed modalities
     {
       id: 1,
       specialtyIds: [1, 2, 3],
@@ -29,10 +29,10 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 75,
       description: "Especialista en tratamiento de fobias y trastornos de ansiedad con enfoque cognitivo-conductual.",
       available_slots: [
-        { id: 1, psychologist_id: 1, day_of_week: 1, time_slot: "09:00", is_available: true },
-        { id: 2, psychologist_id: 1, day_of_week: 1, time_slot: "10:30", is_available: true },
-        { id: 3, psychologist_id: 1, day_of_week: 2, time_slot: "14:00", is_available: true },
-        { id: 4, psychologist_id: 1, day_of_week: 3, time_slot: "16:00", is_available: true },
+        { id: 1, psychologist_id: 1, day_of_week: 1, time_slot: "09:00", is_available: true, modality: "online" },
+        { id: 2, psychologist_id: 1, day_of_week: 1, time_slot: "10:30", is_available: true, modality: "presencial" },
+        { id: 3, psychologist_id: 1, day_of_week: 2, time_slot: "14:00", is_available: true, modality: "online" },
+        { id: 4, psychologist_id: 1, day_of_week: 3, time_slot: "16:00", is_available: true, modality: "online" },
       ],
     },
     {
@@ -43,9 +43,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 85,
       description: "Especialista en relaciones interpersonales y terapia de pareja con enfoque sistémico.",
       available_slots: [
-        { id: 5, psychologist_id: 2, day_of_week: 1, time_slot: "16:00", is_available: true },
-        { id: 6, psychologist_id: 2, day_of_week: 2, time_slot: "09:30", is_available: true },
-        { id: 7, psychologist_id: 2, day_of_week: 4, time_slot: "11:00", is_available: true },
+        { id: 5, psychologist_id: 2, day_of_week: 1, time_slot: "16:00", is_available: true, modality: "presencial" },
+        { id: 6, psychologist_id: 2, day_of_week: 2, time_slot: "09:30", is_available: true, modality: "online" },
+        { id: 7, psychologist_id: 2, day_of_week: 4, time_slot: "11:00", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -56,9 +56,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 70,
       description: "Psicóloga especializada en estrés laboral y desarrollo de autoestima en adultos jóvenes.",
       available_slots: [
-        { id: 8, psychologist_id: 3, day_of_week: 2, time_slot: "15:30", is_available: true },
-        { id: 9, psychologist_id: 3, day_of_week: 3, time_slot: "10:00", is_available: true },
-        { id: 10, psychologist_id: 3, day_of_week: 5, time_slot: "14:30", is_available: true },
+        { id: 8, psychologist_id: 3, day_of_week: 2, time_slot: "15:30", is_available: true, modality: "online" },
+        { id: 9, psychologist_id: 3, day_of_week: 3, time_slot: "10:00", is_available: true, modality: "online" },
+        { id: 10, psychologist_id: 3, day_of_week: 5, time_slot: "14:30", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -69,9 +69,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 90,
       description: "Especialista en procesos de duelo y depresión con amplia experiencia clínica.",
       available_slots: [
-        { id: 11, psychologist_id: 4, day_of_week: 1, time_slot: "11:30", is_available: true },
-        { id: 12, psychologist_id: 4, day_of_week: 3, time_slot: "13:00", is_available: true },
-        { id: 13, psychologist_id: 4, day_of_week: 4, time_slot: "15:00", is_available: true },
+        { id: 11, psychologist_id: 4, day_of_week: 1, time_slot: "11:30", is_available: true, modality: "presencial" },
+        { id: 12, psychologist_id: 4, day_of_week: 3, time_slot: "13:00", is_available: true, modality: "online" },
+        { id: 13, psychologist_id: 4, day_of_week: 4, time_slot: "15:00", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -82,9 +82,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 80,
       description: "Psicólogo especializado en fobias, ansiedad social y fortalecimiento de la autoestima.",
       available_slots: [
-        { id: 14, psychologist_id: 5, day_of_week: 2, time_slot: "08:30", is_available: true },
-        { id: 15, psychologist_id: 5, day_of_week: 4, time_slot: "17:00", is_available: true },
-        { id: 16, psychologist_id: 5, day_of_week: 5, time_slot: "12:00", is_available: true },
+        { id: 14, psychologist_id: 5, day_of_week: 2, time_slot: "08:30", is_available: true, modality: "online" },
+        { id: 15, psychologist_id: 5, day_of_week: 4, time_slot: "17:00", is_available: true, modality: "online" },
+        { id: 16, psychologist_id: 5, day_of_week: 5, time_slot: "12:00", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -95,12 +95,12 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 78,
       description: "Especialista en relaciones interpersonales y manejo del estrés en entornos laborales.",
       available_slots: [
-        { id: 17, psychologist_id: 6, day_of_week: 1, time_slot: "13:30", is_available: true },
-        { id: 18, psychologist_id: 6, day_of_week: 3, time_slot: "09:00", is_available: true },
-        { id: 19, psychologist_id: 6, day_of_week: 5, time_slot: "16:30", is_available: true },
+        { id: 17, psychologist_id: 6, day_of_week: 1, time_slot: "13:30", is_available: true, modality: "online" },
+        { id: 18, psychologist_id: 6, day_of_week: 3, time_slot: "09:00", is_available: true, modality: "presencial" },
+        { id: 19, psychologist_id: 6, day_of_week: 5, time_slot: "16:30", is_available: true, modality: "online" },
       ],
     },
-    // Additional 24 psychologists (30 total)
+    // Additional 24 psychologists (30 total) with mixed modalities
     {
       id: 7,
       specialtyIds: [9, 10],
@@ -109,9 +109,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 72,
       description: "Especialista en trauma y burnout con enfoque en terapia EMDR.",
       available_slots: [
-        { id: 20, psychologist_id: 7, day_of_week: 1, time_slot: "14:00", is_available: true },
-        { id: 21, psychologist_id: 7, day_of_week: 2, time_slot: "16:30", is_available: true },
-        { id: 22, psychologist_id: 7, day_of_week: 4, time_slot: "10:30", is_available: true },
+        { id: 20, psychologist_id: 7, day_of_week: 1, time_slot: "14:00", is_available: true, modality: "online" },
+        { id: 21, psychologist_id: 7, day_of_week: 2, time_slot: "16:30", is_available: true, modality: "presencial" },
+        { id: 22, psychologist_id: 7, day_of_week: 4, time_slot: "10:30", is_available: true, modality: "online" },
       ],
     },
     {
@@ -122,9 +122,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 82,
       description: "Psicólogo especializado en comunicación y terapia de pareja con enfoque humanista.",
       available_slots: [
-        { id: 23, psychologist_id: 8, day_of_week: 2, time_slot: "11:00", is_available: true },
-        { id: 24, psychologist_id: 8, day_of_week: 3, time_slot: "15:00", is_available: true },
-        { id: 25, psychologist_id: 8, day_of_week: 5, time_slot: "09:30", is_available: true },
+        { id: 23, psychologist_id: 8, day_of_week: 2, time_slot: "11:00", is_available: true, modality: "presencial" },
+        { id: 24, psychologist_id: 8, day_of_week: 3, time_slot: "15:00", is_available: true, modality: "online" },
+        { id: 25, psychologist_id: 8, day_of_week: 5, time_slot: "09:30", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -135,9 +135,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 88,
       description: "Especialista en depresión, estrés laboral y duelo con amplia experiencia en terapia cognitiva.",
       available_slots: [
-        { id: 26, psychologist_id: 9, day_of_week: 1, time_slot: "15:30", is_available: true },
-        { id: 27, psychologist_id: 9, day_of_week: 3, time_slot: "11:30", is_available: true },
-        { id: 28, psychologist_id: 9, day_of_week: 6, time_slot: "10:00", is_available: true },
+        { id: 26, psychologist_id: 9, day_of_week: 1, time_slot: "15:30", is_available: true, modality: "online" },
+        { id: 27, psychologist_id: 9, day_of_week: 3, time_slot: "11:30", is_available: true, modality: "presencial" },
+        { id: 28, psychologist_id: 9, day_of_week: 6, time_slot: "10:00", is_available: true, modality: "online" },
       ],
     },
     {
@@ -148,9 +148,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 68,
       description: "Psicóloga joven especializada en fobias y trauma con enfoque en terapia de exposición.",
       available_slots: [
-        { id: 29, psychologist_id: 10, day_of_week: 2, time_slot: "13:30", is_available: true },
-        { id: 30, psychologist_id: 10, day_of_week: 4, time_slot: "14:30", is_available: true },
-        { id: 31, psychologist_id: 10, day_of_week: 5, time_slot: "11:00", is_available: true },
+        { id: 29, psychologist_id: 10, day_of_week: 2, time_slot: "13:30", is_available: true, modality: "online" },
+        { id: 30, psychologist_id: 10, day_of_week: 4, time_slot: "14:30", is_available: true, modality: "online" },
+        { id: 31, psychologist_id: 10, day_of_week: 5, time_slot: "11:00", is_available: true, modality: "presencial" },
       ],
     },
     // Continue with more psychologists...
@@ -162,9 +162,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 92,
       description: "Especialista senior en ansiedad social, autoestima y comunicación interpersonal.",
       available_slots: [
-        { id: 32, psychologist_id: 11, day_of_week: 1, time_slot: "08:00", is_available: true },
-        { id: 33, psychologist_id: 11, day_of_week: 3, time_slot: "17:30", is_available: true },
-        { id: 34, psychologist_id: 11, day_of_week: 5, time_slot: "13:00", is_available: true },
+        { id: 32, psychologist_id: 11, day_of_week: 1, time_slot: "08:00", is_available: true, modality: "presencial" },
+        { id: 33, psychologist_id: 11, day_of_week: 3, time_slot: "17:30", is_available: true, modality: "online" },
+        { id: 34, psychologist_id: 11, day_of_week: 5, time_slot: "13:00", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -175,9 +175,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 76,
       description: "Psicólogo especializado en relaciones personales y prevención del burnout.",
       available_slots: [
-        { id: 35, psychologist_id: 12, day_of_week: 2, time_slot: "10:00", is_available: true },
-        { id: 36, psychologist_id: 12, day_of_week: 4, time_slot: "16:00", is_available: true },
-        { id: 37, psychologist_id: 12, day_of_week: 6, time_slot: "11:30", is_available: true },
+        { id: 35, psychologist_id: 12, day_of_week: 2, time_slot: "10:00", is_available: true, modality: "online" },
+        { id: 36, psychologist_id: 12, day_of_week: 4, time_slot: "16:00", is_available: true, modality: "online" },
+        { id: 37, psychologist_id: 12, day_of_week: 6, time_slot: "11:30", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -188,9 +188,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 95,
       description: "Terapeuta familiar especializada en terapia de pareja, duelo y depresión.",
       available_slots: [
-        { id: 38, psychologist_id: 13, day_of_week: 1, time_slot: "12:00", is_available: true },
-        { id: 39, psychologist_id: 13, day_of_week: 3, time_slot: "14:00", is_available: true },
-        { id: 40, psychologist_id: 13, day_of_week: 5, time_slot: "15:30", is_available: true },
+        { id: 38, psychologist_id: 13, day_of_week: 1, time_slot: "12:00", is_available: true, modality: "presencial" },
+        { id: 39, psychologist_id: 13, day_of_week: 3, time_slot: "14:00", is_available: true, modality: "presencial" },
+        { id: 40, psychologist_id: 13, day_of_week: 5, time_slot: "15:30", is_available: true, modality: "online" },
       ],
     },
     {
@@ -201,9 +201,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 79,
       description: "Especialista en estrés laboral, trauma y burnout con enfoque en mindfulness.",
       available_slots: [
-        { id: 41, psychologist_id: 14, day_of_week: 2, time_slot: "08:30", is_available: true },
-        { id: 42, psychologist_id: 14, day_of_week: 4, time_slot: "12:30", is_available: true },
-        { id: 43, psychologist_id: 14, day_of_week: 6, time_slot: "14:00", is_available: true },
+        { id: 41, psychologist_id: 14, day_of_week: 2, time_slot: "08:30", is_available: true, modality: "online" },
+        { id: 42, psychologist_id: 14, day_of_week: 4, time_slot: "12:30", is_available: true, modality: "presencial" },
+        { id: 43, psychologist_id: 14, day_of_week: 6, time_slot: "14:00", is_available: true, modality: "online" },
       ],
     },
     {
@@ -214,9 +214,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 84,
       description: "Psicóloga especializada en fobias, ansiedad social y desarrollo de habilidades comunicativas.",
       available_slots: [
-        { id: 44, psychologist_id: 15, day_of_week: 1, time_slot: "17:00", is_available: true },
-        { id: 45, psychologist_id: 15, day_of_week: 3, time_slot: "09:30", is_available: true },
-        { id: 46, psychologist_id: 15, day_of_week: 5, time_slot: "10:30", is_available: true },
+        { id: 44, psychologist_id: 15, day_of_week: 1, time_slot: "17:00", is_available: true, modality: "online" },
+        { id: 45, psychologist_id: 15, day_of_week: 3, time_slot: "09:30", is_available: true, modality: "presencial" },
+        { id: 46, psychologist_id: 15, day_of_week: 5, time_slot: "10:30", is_available: true, modality: "online" },
       ],
     },
     // Continue adding more psychologists up to 30...
@@ -228,9 +228,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 86,
       description: "Especialista en depresión, autoestima y procesos de duelo con enfoque integrativo.",
       available_slots: [
-        { id: 47, psychologist_id: 16, day_of_week: 2, time_slot: "12:00", is_available: true },
-        { id: 48, psychologist_id: 16, day_of_week: 4, time_slot: "09:00", is_available: true },
-        { id: 49, psychologist_id: 16, day_of_week: 6, time_slot: "15:00", is_available: true },
+        { id: 47, psychologist_id: 16, day_of_week: 2, time_slot: "12:00", is_available: true, modality: "presencial" },
+        { id: 48, psychologist_id: 16, day_of_week: 4, time_slot: "09:00", is_available: true, modality: "online" },
+        { id: 49, psychologist_id: 16, day_of_week: 6, time_slot: "15:00", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -241,9 +241,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 98,
       description: "Terapeuta senior especializada en relaciones, terapia de pareja y comunicación.",
       available_slots: [
-        { id: 50, psychologist_id: 17, day_of_week: 1, time_slot: "10:00", is_available: true },
-        { id: 51, psychologist_id: 17, day_of_week: 3, time_slot: "16:30", is_available: true },
-        { id: 52, psychologist_id: 17, day_of_week: 5, time_slot: "14:00", is_available: true },
+        { id: 50, psychologist_id: 17, day_of_week: 1, time_slot: "10:00", is_available: true, modality: "presencial" },
+        { id: 51, psychologist_id: 17, day_of_week: 3, time_slot: "16:30", is_available: true, modality: "online" },
+        { id: 52, psychologist_id: 17, day_of_week: 5, time_slot: "14:00", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -254,9 +254,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 71,
       description: "Psicólogo joven especializado en estrés laboral, burnout y trauma organizacional.",
       available_slots: [
-        { id: 53, psychologist_id: 18, day_of_week: 2, time_slot: "14:30", is_available: true },
-        { id: 54, psychologist_id: 18, day_of_week: 4, time_slot: "11:30", is_available: true },
-        { id: 55, psychologist_id: 18, day_of_week: 6, time_slot: "09:30", is_available: true },
+        { id: 53, psychologist_id: 18, day_of_week: 2, time_slot: "14:30", is_available: true, modality: "online" },
+        { id: 54, psychologist_id: 18, day_of_week: 4, time_slot: "11:30", is_available: true, modality: "online" },
+        { id: 55, psychologist_id: 18, day_of_week: 6, time_slot: "09:30", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -267,9 +267,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 83,
       description: "Especialista en fobias, depresión y fortalecimiento de la autoestima personal.",
       available_slots: [
-        { id: 56, psychologist_id: 19, day_of_week: 1, time_slot: "14:30", is_available: true },
-        { id: 57, psychologist_id: 19, day_of_week: 3, time_slot: "12:30", is_available: true },
-        { id: 58, psychologist_id: 19, day_of_week: 5, time_slot: "16:00", is_available: true },
+        { id: 56, psychologist_id: 19, day_of_week: 1, time_slot: "14:30", is_available: true, modality: "online" },
+        { id: 57, psychologist_id: 19, day_of_week: 3, time_slot: "12:30", is_available: true, modality: "presencial" },
+        { id: 58, psychologist_id: 19, day_of_week: 5, time_slot: "16:00", is_available: true, modality: "online" },
       ],
     },
     {
@@ -280,9 +280,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 89,
       description: "Psicóloga especializada en ansiedad social, duelo y desarrollo comunicativo.",
       available_slots: [
-        { id: 59, psychologist_id: 20, day_of_week: 2, time_slot: "17:00", is_available: true },
-        { id: 60, psychologist_id: 20, day_of_week: 4, time_slot: "08:30", is_available: true },
-        { id: 61, psychologist_id: 20, day_of_week: 6, time_slot: "12:30", is_available: true },
+        { id: 59, psychologist_id: 20, day_of_week: 2, time_slot: "17:00", is_available: true, modality: "online" },
+        { id: 60, psychologist_id: 20, day_of_week: 4, time_slot: "08:30", is_available: true, modality: "presencial" },
+        { id: 61, psychologist_id: 20, day_of_week: 6, time_slot: "12:30", is_available: true, modality: "online" },
       ],
     },
     // Adding 10 more to reach 30 total
@@ -294,9 +294,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 74,
       description: "Terapeuta especializada en terapia de pareja, estrés laboral y prevención del burnout.",
       available_slots: [
-        { id: 62, psychologist_id: 21, day_of_week: 1, time_slot: "11:00", is_available: true },
-        { id: 63, psychologist_id: 21, day_of_week: 3, time_slot: "15:30", is_available: true },
-        { id: 64, psychologist_id: 21, day_of_week: 5, time_slot: "17:30", is_available: true },
+        { id: 62, psychologist_id: 21, day_of_week: 1, time_slot: "11:00", is_available: true, modality: "presencial" },
+        { id: 63, psychologist_id: 21, day_of_week: 3, time_slot: "15:30", is_available: true, modality: "online" },
+        { id: 64, psychologist_id: 21, day_of_week: 5, time_slot: "17:30", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -307,9 +307,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 77,
       description: "Especialista en trauma, fobias y ansiedad social con enfoque en terapia cognitiva.",
       available_slots: [
-        { id: 65, psychologist_id: 22, day_of_week: 2, time_slot: "09:00", is_available: true },
-        { id: 66, psychologist_id: 22, day_of_week: 4, time_slot: "13:30", is_available: true },
-        { id: 67, psychologist_id: 22, day_of_week: 6, time_slot: "16:30", is_available: true },
+        { id: 65, psychologist_id: 22, day_of_week: 2, time_slot: "09:00", is_available: true, modality: "online" },
+        { id: 66, psychologist_id: 22, day_of_week: 4, time_slot: "13:30", is_available: true, modality: "online" },
+        { id: 67, psychologist_id: 22, day_of_week: 6, time_slot: "16:30", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -320,9 +320,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 93,
       description: "Psicólogo senior especializado en depresión, relaciones personales y autoestima.",
       available_slots: [
-        { id: 68, psychologist_id: 23, day_of_week: 1, time_slot: "16:30", is_available: true },
-        { id: 69, psychologist_id: 23, day_of_week: 3, time_slot: "10:30", is_available: true },
-        { id: 70, psychologist_id: 23, day_of_week: 5, time_slot: "11:30", is_available: true },
+        { id: 68, psychologist_id: 23, day_of_week: 1, time_slot: "16:30", is_available: true, modality: "presencial" },
+        { id: 69, psychologist_id: 23, day_of_week: 3, time_slot: "10:30", is_available: true, modality: "online" },
+        { id: 70, psychologist_id: 23, day_of_week: 5, time_slot: "11:30", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -333,9 +333,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 75,
       description: "Especialista en duelo, comunicación y manejo del estrés en el trabajo.",
       available_slots: [
-        { id: 71, psychologist_id: 24, day_of_week: 2, time_slot: "11:30", is_available: true },
-        { id: 72, psychologist_id: 24, day_of_week: 4, time_slot: "15:00", is_available: true },
-        { id: 73, psychologist_id: 24, day_of_week: 6, time_slot: "13:30", is_available: true },
+        { id: 71, psychologist_id: 24, day_of_week: 2, time_slot: "11:30", is_available: true, modality: "online" },
+        { id: 72, psychologist_id: 24, day_of_week: 4, time_slot: "15:00", is_available: true, modality: "presencial" },
+        { id: 73, psychologist_id: 24, day_of_week: 6, time_slot: "13:30", is_available: true, modality: "online" },
       ],
     },
     {
@@ -346,9 +346,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 81,
       description: "Psicóloga especializada en burnout, trauma y tratamiento de la depresión.",
       available_slots: [
-        { id: 74, psychologist_id: 25, day_of_week: 1, time_slot: "13:00", is_available: true },
-        { id: 75, psychologist_id: 25, day_of_week: 3, time_slot: "08:30", is_available: true },
-        { id: 76, psychologist_id: 25, day_of_week: 5, time_slot: "15:00", is_available: true },
+        { id: 74, psychologist_id: 25, day_of_week: 1, time_slot: "13:00", is_available: true, modality: "online" },
+        { id: 75, psychologist_id: 25, day_of_week: 3, time_slot: "08:30", is_available: true, modality: "presencial" },
+        { id: 76, psychologist_id: 25, day_of_week: 5, time_slot: "15:00", is_available: true, modality: "online" },
       ],
     },
     {
@@ -359,9 +359,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 87,
       description: "Terapeuta especializada en fobias, terapia de pareja y habilidades comunicativas.",
       available_slots: [
-        { id: 77, psychologist_id: 26, day_of_week: 2, time_slot: "15:00", is_available: true },
-        { id: 78, psychologist_id: 26, day_of_week: 4, time_slot: "10:00", is_available: true },
-        { id: 79, psychologist_id: 26, day_of_week: 6, time_slot: "17:00", is_available: true },
+        { id: 77, psychologist_id: 26, day_of_week: 2, time_slot: "15:00", is_available: true, modality: "presencial" },
+        { id: 78, psychologist_id: 26, day_of_week: 4, time_slot: "10:00", is_available: true, modality: "online" },
+        { id: 79, psychologist_id: 26, day_of_week: 6, time_slot: "17:00", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -372,9 +372,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 69,
       description: "Psicólogo joven especializado en ansiedad social, estrés laboral y autoestima.",
       available_slots: [
-        { id: 80, psychologist_id: 27, day_of_week: 1, time_slot: "09:30", is_available: true },
-        { id: 81, psychologist_id: 27, day_of_week: 3, time_slot: "14:30", is_available: true },
-        { id: 82, psychologist_id: 27, day_of_week: 5, time_slot: "12:30", is_available: true },
+        { id: 80, psychologist_id: 27, day_of_week: 1, time_slot: "09:30", is_available: true, modality: "online" },
+        { id: 81, psychologist_id: 27, day_of_week: 3, time_slot: "14:30", is_available: true, modality: "online" },
+        { id: 82, psychologist_id: 27, day_of_week: 5, time_slot: "12:30", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -385,9 +385,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 85,
       description: "Especialista en relaciones personales, duelo y prevención del burnout profesional.",
       available_slots: [
-        { id: 83, psychologist_id: 28, day_of_week: 2, time_slot: "16:00", is_available: true },
-        { id: 84, psychologist_id: 28, day_of_week: 4, time_slot: "12:00", is_available: true },
-        { id: 85, psychologist_id: 28, day_of_week: 6, time_slot: "10:30", is_available: true },
+        { id: 83, psychologist_id: 28, day_of_week: 2, time_slot: "16:00", is_available: true, modality: "presencial" },
+        { id: 84, psychologist_id: 28, day_of_week: 4, time_slot: "12:00", is_available: true, modality: "online" },
+        { id: 85, psychologist_id: 28, day_of_week: 6, time_slot: "10:30", is_available: true, modality: "presencial" },
       ],
     },
     {
@@ -398,9 +398,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 96,
       description: "Psicóloga senior especializada en trauma, depresión y desarrollo comunicativo.",
       available_slots: [
-        { id: 86, psychologist_id: 29, day_of_week: 1, time_slot: "15:00", is_available: true },
-        { id: 87, psychologist_id: 29, day_of_week: 3, time_slot: "11:00", is_available: true },
-        { id: 88, psychologist_id: 29, day_of_week: 5, time_slot: "09:00", is_available: true },
+        { id: 86, psychologist_id: 29, day_of_week: 1, time_slot: "15:00", is_available: true, modality: "online" },
+        { id: 87, psychologist_id: 29, day_of_week: 3, time_slot: "11:00", is_available: true, modality: "presencial" },
+        { id: 88, psychologist_id: 29, day_of_week: 5, time_slot: "09:00", is_available: true, modality: "online" },
       ],
     },
     {
@@ -411,9 +411,9 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
       price: 91,
       description: "Especialista en fobias, estrés laboral y acompañamiento en procesos de duelo.",
       available_slots: [
-        { id: 89, psychologist_id: 30, day_of_week: 2, time_slot: "13:00", is_available: true },
-        { id: 90, psychologist_id: 30, day_of_week: 4, time_slot: "17:30", is_available: true },
-        { id: 91, psychologist_id: 30, day_of_week: 6, time_slot: "11:00", is_available: true },
+        { id: 89, psychologist_id: 30, day_of_week: 2, time_slot: "13:00", is_available: true, modality: "presencial" },
+        { id: 90, psychologist_id: 30, day_of_week: 4, time_slot: "17:30", is_available: true, modality: "online" },
+        { id: 91, psychologist_id: 30, day_of_week: 6, time_slot: "11:00", is_available: true, modality: "presencial" },
       ],
     },
   ]
@@ -453,7 +453,8 @@ export async function getPsychologists(): Promise<PsychologistWithSpecialties[]>
           id,
           day_of_week,
           time_slot,
-          is_available
+          is_available,
+          modality
         )
       `)
 

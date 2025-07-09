@@ -35,6 +35,7 @@ export interface AvailableSlot {
   day_of_week: number
   time_slot: string
   is_available: boolean
+  modality: "online" | "presencial"
 }
 
 export interface Session {
