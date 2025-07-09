@@ -121,13 +121,33 @@ export default function PsychologyApp() {
     return weekDates
   }
 
-  const isSlotInPast = (date: Date, timeSlot: string) => {
-    const now = new Date()
-    const slotDateTime = new Date(date)
-    const [hours, minutes] = timeSlot.split(":").map(Number)
-    slotDateTime.setHours(hours, minutes, 0, 0)
+  const isSlotInPast = (date: Date, timeSlot: string, userTimezone: string) => {
+    if (!userTimezone) return false
 
-    return slotDateTime < now
+    try {
+      // Get current time in user's timezone
+      const now = new Date()
+      const currentTimeInUserTZ = new Date(now.toLocaleString("en-US", { timeZone: userTimezone }))
+
+      // Create slot datetime in user's timezone
+      const [hours, minutes] = timeSlot.split(":").map(Number)
+      if (isNaN(hours) || isNaN(minutes)) return false
+
+      // Create the slot date/time in user's timezone
+      const slotDate = new Date(date)
+      const slotDateString = slotDate.toISOString().split("T")[0] // YYYY-MM-DD
+      const slotTimeString = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
+
+      // Create a proper datetime string and convert to user's timezone
+      const slotDateTimeString = `${slotDateString}T${slotTimeString}:00`
+      const slotDateTime = new Date(slotDateTimeString)
+      const slotInUserTZ = new Date(slotDateTime.toLocaleString("en-US", { timeZone: userTimezone }))
+
+      return slotInUserTZ < currentTimeInUserTZ
+    } catch (error) {
+      console.error("Error checking if slot is in past:", error)
+      return false // If there's an error, don't filter out the slot
+    }
   }
 
   const isSlotBooked = (psychologistId: number, date: Date, timeSlot: string, modality: string) => {
@@ -270,8 +290,8 @@ export default function PsychologyApp() {
   const getAvailableSlotsForDay = (psychologist: PsychologistWithSpecialties, dayOfWeek: number, date: Date) => {
     return psychologist.available_slots
       .filter((slot) => slot.day_of_week === dayOfWeek && slot.is_available)
-      .filter((slot) => !isSlotInPast(date, slot.time_slot))
-      .sort((a, b) => a.time_slot.localeCompare(b.time_slot)) // Add this line to sort by time
+      .filter((slot) => !isSlotInPast(date, slot.time_slot, userTimezone))
+      .sort((a, b) => a.time_slot.localeCompare(b.time_slot))
       .map((slot) => ({
         time_slot: slot.time_slot,
         modality: slot.modality,
