@@ -15,7 +15,7 @@
     ```
 
 2.  Instalar dependencias
-    Este proyecto usa `npm`. Requiere tener Node instalado.
+    Este proyecto usa `npm`. Requiere tener Node instalado
     ```bash
     npm install
     ```
@@ -24,39 +24,35 @@
 
     Crear un archivo `.env` en la raíz del proyecto y agregá estas variables:
 
-    *   `NEXT_PUBLIC_SUPABASE_URL`: La URL de tu instancia de Supabase.
-    *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: La clave anónima de la instancia de Supabase.
+    *   `NEXT_PUBLIC_SUPABASE_URL`: La URL de tu instancia de Supabase
+    *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: La clave anónima de la instancia de Supabase
 
 4.  Ejecutar app
     ```bash
     npm run dev
     ```
 
-    `http://localhost:3000` para ver la aplicación funcionando.
+    `http://localhost:3000` para ver la aplicación funcionando
 
 5.  **Ejecutar scripts SQL (opcional):**
     Usar la herramienta de línea de comandos de Supabase o cualquier cliente SQL para seedear la base de datos.
 
-## 2. Decisiones técnicas y funcionales
+## 2. Decisiones técnicas, funcionales, lo que se hizo y se asumió
 
-* **v0:** No-code tool muy fácil de usar, intuitiva y perfecta para armar prototipos funcionales rápido
-* **Supabase:** Fácil integración con v0 y buen dashboard para visualización de datos
-* **Vercel:** Fácil integración con el resto del stack, fácil despliegue, buen ecosistema
-* **Cursor:** IDE integrado con IA para debuggear y añadir features rápido
-* **GitHub:** Versionado de cambios
+* Se armó un prototipo inicial con las siguientes tecnologías:
+  * **v0:** No-code tool muy fácil de usar, intuitiva y perfecta para armar prototipos funcionales rápido
+  * **Supabase:** Fácil integración con v0 y buen dashboard para visualización de datos
+  * **Vercel:** Fácil integración con el resto del stack, fácil despliegue, buen ecosistema
+  * **Cursor:** IDE integrado con IA para debuggear y añadir features rápido
+  * **GitHub:** Versionado de cambios
 
 El prototipo cumple funcionalmente con los requerimientos. Estaría listo para salir a testear con usuarios y empezar a validar diferentes hipótesis.
 
-## 3. Detalle: Lo que se hizo y se asumió
+Se asumió:
+- La necesidad de un MVP que sirva para testear algunas ideas iniciales
+- Saber que como MVP, va a estar sujeto a cambio con base en la interacción el usuario, por lo cual toda la infrastructura debe ser fácilmente iterable (ej., no debe estar sobre una arquitectura demasiado compleja de luego modificar)
 
-* Se armó un prototipo inicial con las siguientes tecnologías:
-  * v0 — no-code tool
-  * Supabase — Database provider
-  * Vercel — deployent y continuos integration
-  * Cursor — editor de código
-  * GitHub — versionado de cambios
-
-## 4. Documento funcional
+## 3. Documento funcional
 
 ### Flowchart: Qué se puede hacer y cómo
 ```mermaid
