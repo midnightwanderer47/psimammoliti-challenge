@@ -1,206 +1,142 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
+import { CardDescription } from "@/components/ui/card"
+import { CardTitle } from "@/components/ui/card"
+import { CardHeader } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { X, Filter, Video, MapPin, Globe } from "lucide-react"
+import { Filter, Search, X, Video, MapPin } from "lucide-react"
 import type { Specialty } from "@/lib/supabase"
 
 interface FilterSectionProps {
   specialties: Specialty[]
-  selectedSpecialties: number[]
-  onSpecialtyChange: (specialtyIds: number[]) => void
-  priceRange: [number, number]
-  onPriceRangeChange: (range: [number, number]) => void
+  selectedSpecialty: string
+  onSpecialtyChange: (specialty: string) => void
+  searchQuery: string
+  onSearchChange: (query: string) => void
   selectedModality: string
   onModalityChange: (modality: string) => void
+  resultCount: number
 }
 
 export function FilterSection({
   specialties,
-  selectedSpecialties,
+  selectedSpecialty,
   onSpecialtyChange,
-  priceRange,
-  onPriceRangeChange,
+  searchQuery,
+  onSearchChange,
   selectedModality,
   onModalityChange,
+  resultCount,
 }: FilterSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  const handleSpecialtyToggle = (specialtyId: number) => {
-    if (selectedSpecialties.includes(specialtyId)) {
-      onSpecialtyChange(selectedSpecialties.filter((id) => id !== specialtyId))
-    } else {
-      onSpecialtyChange([...selectedSpecialties, specialtyId])
-    }
-  }
-
-  const clearAllFilters = () => {
-    onSpecialtyChange([])
-    onPriceRangeChange([0, 200])
-    onModalityChange("todas")
-  }
-
-  const hasActiveFilters =
-    selectedSpecialties.length > 0 || priceRange[0] > 0 || priceRange[1] < 200 || selectedModality !== "todas"
-
-  const getModalityIcon = (modality: string) => {
-    switch (modality) {
-      case "online":
-        return <Video className="h-4 w-4" />
-      case "presencial":
-        return <MapPin className="h-4 w-4" />
-      default:
-        return <Globe className="h-4 w-4" />
-    }
-  }
-
-  const getModalityLabel = (modality: string) => {
-    switch (modality) {
-      case "online":
-        return "Online"
-      case "presencial":
-        return "Presencial"
-      default:
-        return "Todas"
-    }
-  }
-
   return (
-    <Card className="mb-6">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
+    <Card className="mb-8">
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-muted rounded-lg">
             <Filter className="h-5 w-5" />
-            <h3 className="font-semibold">Filtros</h3>
-            {hasActiveFilters && (
-              <Badge variant="secondary" className="ml-2">
-                {selectedSpecialties.length +
-                  (priceRange[0] > 0 || priceRange[1] < 200 ? 1 : 0) +
-                  (selectedModality !== "todas" ? 1 : 0)}{" "}
-                activos
-              </Badge>
-            )}
           </div>
-          <div className="flex items-center gap-2">
-            {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-sm">
-                Limpiar filtros
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)} className="text-sm">
-              {isExpanded ? "Ocultar" : "Mostrar"} filtros
-            </Button>
+          <div>
+            <CardTitle className="text-lg">Filtros de Búsqueda</CardTitle>
+            <CardDescription>Encuentra el psicólogo ideal para ti</CardDescription>
           </div>
         </div>
-
-        {/* Active Filters Display */}
-        {hasActiveFilters && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {selectedSpecialties.map((specialtyId) => {
-              const specialty = specialties.find((s) => s.id === specialtyId)
-              return (
-                <Badge key={specialtyId} variant="default" className="flex items-center gap-1">
-                  {specialty?.name}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => handleSpecialtyToggle(specialtyId)} />
-                </Badge>
-              )
-            })}
-            {(priceRange[0] > 0 || priceRange[1] < 200) && (
-              <Badge variant="default" className="flex items-center gap-1">
-                ${priceRange[0]} - ${priceRange[1]}
-                <X className="h-3 w-3 cursor-pointer" onClick={() => onPriceRangeChange([0, 200])} />
-              </Badge>
-            )}
-            {selectedModality !== "todas" && (
-              <Badge variant="default" className="flex items-center gap-1">
-                {getModalityIcon(selectedModality)}
-                {getModalityLabel(selectedModality)}
-                <X className="h-3 w-3 cursor-pointer" onClick={() => onModalityChange("todas")} />
-              </Badge>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-3">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nombre o especialidad..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-10"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => onSearchChange("")}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
             )}
           </div>
-        )}
 
-        {isExpanded && (
-          <div className="space-y-6">
-            {/* Modality Filter */}
-            <div>
-              <h4 className="font-medium mb-3">Modalidad</h4>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { value: "todas", label: "Todas", icon: <Globe className="h-4 w-4" /> },
-                  { value: "online", label: "Online", icon: <Video className="h-4 w-4" /> },
-                  { value: "presencial", label: "Presencial", icon: <MapPin className="h-4 w-4" /> },
-                ].map((modality) => (
-                  <Button
-                    key={modality.value}
-                    variant={selectedModality === modality.value ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => onModalityChange(modality.value)}
-                    className="flex items-center gap-2"
-                  >
-                    {modality.icon}
-                    {modality.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
+          {/* Specialty Filter */}
+          <Select value={selectedSpecialty} onValueChange={onSpecialtyChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona una especialidad" />
+            </SelectTrigger>
+            <SelectContent>
+              {specialties.map((specialty) => (
+                <SelectItem key={specialty.id} value={specialty.name}>
+                  {specialty.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-            {/* Specialties Filter */}
-            <div>
-              <h4 className="font-medium mb-3">Especialidades</h4>
-              <div className="flex flex-wrap gap-2">
-                {specialties.map((specialty) => (
-                  <Button
-                    key={specialty.id}
-                    variant={selectedSpecialties.includes(specialty.id) ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleSpecialtyToggle(specialty.id)}
-                  >
-                    {specialty.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Price Range Filter */}
-            <div>
-              <h4 className="font-medium mb-3">Rango de Precio</h4>
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <label className="text-sm text-gray-600">Mínimo</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="200"
-                      step="5"
-                      value={priceRange[0]}
-                      onChange={(e) => onPriceRangeChange([Number.parseInt(e.target.value), priceRange[1]])}
-                      className="w-full"
-                    />
-                    <span className="text-sm font-medium">${priceRange[0]}</span>
-                  </div>
-                  <div className="flex-1">
-                    <label className="text-sm text-gray-600">Máximo</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="200"
-                      step="5"
-                      value={priceRange[1]}
-                      onChange={(e) => onPriceRangeChange([priceRange[0], Number.parseInt(e.target.value)])}
-                      className="w-full"
-                    />
-                    <span className="text-sm font-medium">${priceRange[1]}</span>
-                  </div>
+          {/* Modality Filter */}
+          <Select value={selectedModality} onValueChange={onModalityChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Modalidad de sesión" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Todas">Todas las modalidades</SelectItem>
+              <SelectItem value="online">
+                <div className="flex items-center gap-2">
+                  <Video className="h-4 w-4" />
+                  Online
                 </div>
+              </SelectItem>
+              <SelectItem value="presencial">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Presencial
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Active Filters */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-muted-foreground">Filtros activos:</span>
+          {selectedSpecialty !== "Todas" && (
+            <Badge variant="secondary">
+              {selectedSpecialty}
+              <button onClick={() => onSpecialtyChange("Todas")} className="ml-1 hover:text-foreground">
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          )}
+          {selectedModality !== "Todas" && (
+            <Badge variant="secondary">
+              <div className="flex items-center gap-1">
+                {selectedModality === "online" ? <Video className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
+                {selectedModality === "online" ? "Online" : "Presencial"}
               </div>
-            </div>
-          </div>
-        )}
+              <button onClick={() => onModalityChange("Todas")} className="ml-1 hover:text-foreground">
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          )}
+          {searchQuery && (
+            <Badge variant="secondary">
+              "{searchQuery}"
+              <button onClick={() => onSearchChange("")} className="ml-1 hover:text-foreground">
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          )}
+          <span className="text-sm text-muted-foreground ml-auto">
+            {resultCount} psicólogo{resultCount !== 1 ? "s" : ""} encontrado{resultCount !== 1 ? "s" : ""}
+          </span>
+        </div>
       </CardContent>
     </Card>
   )
