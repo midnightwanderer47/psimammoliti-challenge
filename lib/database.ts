@@ -1,6 +1,6 @@
 import { supabase } from "./supabase"
 import { fetchRandomUser } from "./randomuser"
-import type { PsychologistWithSpecialties, AnalyticsData } from "./supabase"
+import type { PsychologistWithSpecialties, AnalyticsData, Session } from "./supabase"
 
 // Enhanced fallback data with more realistic information
 const fallbackSpecialties = [
@@ -514,6 +514,22 @@ export async function getSpecialties() {
   }
 }
 
+export async function getBookedSessions(): Promise<Session[]> {
+  try {
+    const { data, error } = await supabase.from("sessions").select("*").eq("status", "scheduled")
+
+    if (error) {
+      console.warn("Database not ready, using empty booked sessions:", error.message)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.warn("Error fetching booked sessions:", error)
+    return []
+  }
+}
+
 export async function bookSession(sessionData: {
   patient_name: string
   patient_email: string
@@ -543,20 +559,17 @@ export async function bookSession(sessionData: {
       }
     }
 
-    // Proceed with actual database operations
-    let { data: patient, error: patientError } = await supabase
+    // First, create or get patient
+    const { data: existingPatient } = await supabase
       .from("patients")
       .select("id")
       .eq("email", sessionData.patient_email)
       .single()
 
-    if (patientError && patientError.code !== "PGRST116") {
-      console.error("Error checking patient:", patientError)
-      return { success: false, error: patientError }
-    }
+    let patientId = existingPatient?.id
 
-    if (!patient) {
-      const { data: newPatient, error: createPatientError } = await supabase
+    if (!patientId) {
+      const { data: newPatient, error: patientError } = await supabase
         .from("patients")
         .insert({
           name: sessionData.patient_name,
@@ -566,25 +579,25 @@ export async function bookSession(sessionData: {
         .select("id")
         .single()
 
-      if (createPatientError) {
-        console.error("Error creating patient:", createPatientError)
-        return { success: false, error: createPatientError }
+      if (patientError) {
+        console.error("Error creating patient:", patientError)
+        return { success: false, error: patientError.message }
       }
 
-      patient = newPatient
+      patientId = newPatient.id
     }
 
+    // Create the session
     const { data: session, error: sessionError } = await supabase
       .from("sessions")
       .insert({
-        patient_id: patient.id,
+        patient_id: patientId,
         psychologist_id: sessionData.psychologist_id,
         specialty_id: sessionData.specialty_id,
         session_date: sessionData.session_date,
         session_time: sessionData.session_time,
         modality: sessionData.modality,
         price: sessionData.price,
-        patient_timezone: sessionData.patient_timezone,
         status: "scheduled",
       })
       .select()
@@ -592,70 +605,63 @@ export async function bookSession(sessionData: {
 
     if (sessionError) {
       console.error("Error creating session:", sessionError)
-      return { success: false, error: sessionError }
+      return { success: false, error: sessionError.message }
     }
 
     return { success: true, data: session }
   } catch (error) {
     console.error("Error booking session:", error)
-    return { success: false, error }
+    return { success: false, error: "Error interno del servidor" }
   }
 }
 
-export async function getAnalytics(): Promise<AnalyticsData> {
+export async function getAnalyticsData(): Promise<AnalyticsData> {
   try {
-    // Check if database is ready
-    const { error: testError } = await supabase.from("sessions").select("id").limit(1)
-
-    if (testError) {
-      console.warn("Database not ready, using fallback analytics:", testError.message)
-      return {
-        most_consulted_topics: [
-          { tematica: "Depresión", total_sesiones: 45, porcentaje: 28.1 },
-          { tematica: "Ansiedad Social", total_sesiones: 38, porcentaje: 23.8 },
-          { tematica: "Fobias", total_sesiones: 32, porcentaje: 20.0 },
-          { tematica: "Estrés Laboral", total_sesiones: 28, porcentaje: 17.5 },
-          { tematica: "Relaciones Personales", total_sesiones: 17, porcentaje: 10.6 },
-        ],
-        busiest_days: [
-          { dia_semana: "Miércoles", total_sesiones: 35, porcentaje: 21.9 },
-          { dia_semana: "Martes", total_sesiones: 32, porcentaje: 20.0 },
-          { dia_semana: "Jueves", total_sesiones: 28, porcentaje: 17.5 },
-          { dia_semana: "Lunes", total_sesiones: 25, porcentaje: 15.6 },
-          { dia_semana: "Viernes", total_sesiones: 22, porcentaje: 13.8 },
-          { dia_semana: "Sábado", total_sesiones: 12, porcentaje: 7.5 },
-          { dia_semana: "Domingo", total_sesiones: 6, porcentaje: 3.8 },
-        ],
-        popular_modalities: [
-          { modalidad: "online", total_sesiones: 128, porcentaje: 80.0, precio_promedio: 82.3 },
-          { modalidad: "telefonica", total_sesiones: 22, porcentaje: 13.8, precio_promedio: 75.8 },
-          { modalidad: "presencial", total_sesiones: 10, porcentaje: 6.3, precio_promedio: 89.5 },
-        ],
-      }
-    }
-
-    // Try to use the stored functions
-    const [topicsResult, daysResult, modalitiesResult] = await Promise.allSettled([
+    // Try to get data from database
+    const [topicsResult, daysResult, modalitiesResult] = await Promise.all([
       supabase.rpc("get_most_consulted_topics"),
       supabase.rpc("get_busiest_days"),
       supabase.rpc("get_popular_modalities"),
     ])
 
-    const topicsData = topicsResult.status === "fulfilled" ? topicsResult.value.data : []
-    const daysData = daysResult.status === "fulfilled" ? daysResult.value.data : []
-    const modalitiesData = modalitiesResult.status === "fulfilled" ? modalitiesResult.value.data : []
+    // Check if any query failed (indicating database not ready)
+    if (topicsResult.error || daysResult.error || modalitiesResult.error) {
+      console.warn("Database not ready for analytics, using fallback data")
+      return getFallbackAnalyticsData()
+    }
 
     return {
-      most_consulted_topics: topicsData || [],
-      busiest_days: daysData || [],
-      popular_modalities: modalitiesData || [],
+      mostConsultedTopics: topicsResult.data || [],
+      busiestDays: daysResult.data || [],
+      popularModalities: modalitiesResult.data || [],
     }
   } catch (error) {
-    console.error("Error fetching analytics:", error)
-    return {
-      most_consulted_topics: [],
-      busiest_days: [],
-      popular_modalities: [],
-    }
+    console.warn("Error fetching analytics data, using fallback:", error)
+    return getFallbackAnalyticsData()
+  }
+}
+
+function getFallbackAnalyticsData(): AnalyticsData {
+  return {
+    mostConsultedTopics: [
+      { specialty_name: "Ansiedad Social", session_count: 45 },
+      { specialty_name: "Depresión", session_count: 38 },
+      { specialty_name: "Estrés Laboral", session_count: 32 },
+      { specialty_name: "Relaciones Personales", session_count: 28 },
+      { specialty_name: "Autoestima", session_count: 25 },
+    ],
+    busiestDays: [
+      { day_name: "Miércoles", session_count: 28 },
+      { day_name: "Martes", session_count: 25 },
+      { day_name: "Jueves", session_count: 23 },
+      { day_name: "Lunes", session_count: 20 },
+      { day_name: "Viernes", session_count: 18 },
+      { day_name: "Sábado", session_count: 12 },
+      { day_name: "Domingo", session_count: 8 },
+    ],
+    popularModalities: [
+      { modality: "online", session_count: 78 },
+      { modality: "presencial", session_count: 56 },
+    ],
   }
 }

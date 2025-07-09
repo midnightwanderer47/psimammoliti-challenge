@@ -7,8 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video, MapPin } from "lucide-react"
-import { getPsychologists, getSpecialties, bookSession } from "@/lib/database"
-import type { PsychologistWithSpecialties, Specialty } from "@/lib/supabase"
+import { getPsychologists, getSpecialties, bookSession, getBookedSessions } from "@/lib/database"
+import type { PsychologistWithSpecialties, Specialty, Session } from "@/lib/supabase"
 import { PsychologistCard } from "@/components/psychologist-card"
 import { LoadingSkeleton } from "@/components/loading-skeleton"
 import { StatusBanner } from "@/components/status-banner"
@@ -31,6 +31,7 @@ export default function PsychologyApp() {
   const [userTimezone, setUserTimezone] = useState("")
   const [loading, setLoading] = useState(true)
   const [bookingLoading, setBookingLoading] = useState(false)
+  const [bookedSessions, setBookedSessions] = useState<Session[]>([])
 
   // Formulario de paciente
   const [patientName, setPatientName] = useState("")
@@ -50,9 +51,14 @@ export default function PsychologyApp() {
     setError(null)
 
     try {
-      const [psychologistsData, specialtiesData] = await Promise.all([getPsychologists(), getSpecialties()])
+      const [psychologistsData, specialtiesData, bookedSessionsData] = await Promise.all([
+        getPsychologists(),
+        getSpecialties(),
+        getBookedSessions(),
+      ])
       setPsychologists(psychologistsData)
       setSpecialties([{ id: 0, name: "Todas", description: "" }, ...specialtiesData])
+      setBookedSessions(bookedSessionsData)
 
       if (psychologistsData.length > 0 && psychologistsData[0].id) {
         setDatabaseReady(true)
@@ -113,6 +119,27 @@ export default function PsychologyApp() {
       weekDates.push(date)
     }
     return weekDates
+  }
+
+  const isSlotInPast = (date: Date, timeSlot: string) => {
+    const now = new Date()
+    const slotDateTime = new Date(date)
+    const [hours, minutes] = timeSlot.split(":").map(Number)
+    slotDateTime.setHours(hours, minutes, 0, 0)
+
+    return slotDateTime < now
+  }
+
+  const isSlotBooked = (psychologistId: number, date: Date, timeSlot: string, modality: string) => {
+    const dateString = date.toISOString().split("T")[0]
+    return bookedSessions.some(
+      (session) =>
+        session.psychologist_id === psychologistId &&
+        session.session_date === dateString &&
+        session.session_time === timeSlot &&
+        session.modality === modality &&
+        session.status === "scheduled",
+    )
   }
 
   const convertTimeToUserTimezone = (time: string) => {
@@ -217,6 +244,10 @@ export default function PsychologyApp() {
         setSelectedSlot(null)
         setPatientName("")
         setPatientEmail("")
+
+        // Reload booked sessions to update the calendar
+        const updatedBookedSessions = await getBookedSessions()
+        setBookedSessions(updatedBookedSessions)
       } else {
         alert("Error al agendar la cita. Por favor intenta de nuevo.")
       }
@@ -236,12 +267,14 @@ export default function PsychologyApp() {
     })
   }
 
-  const getAvailableSlotsForDay = (psychologist: PsychologistWithSpecialties, dayOfWeek: number) => {
+  const getAvailableSlotsForDay = (psychologist: PsychologistWithSpecialties, dayOfWeek: number, date: Date) => {
     return psychologist.available_slots
       .filter((slot) => slot.day_of_week === dayOfWeek && slot.is_available)
+      .filter((slot) => !isSlotInPast(date, slot.time_slot))
       .map((slot) => ({
         time_slot: slot.time_slot,
         modality: slot.modality,
+        isBooked: isSlotBooked(psychologist.id, date, slot.time_slot, slot.modality),
       }))
   }
 
@@ -380,7 +413,7 @@ export default function PsychologyApp() {
               <div className="grid grid-cols-7 gap-3">
                 {dayNames.map((dayName, index) => {
                   const availableSlots = selectedPsychologist
-                    ? getAvailableSlotsForDay(selectedPsychologist, index)
+                    ? getAvailableSlotsForDay(selectedPsychologist, index, weekDates[index])
                     : []
 
                   return (
@@ -403,6 +436,25 @@ export default function PsychologyApp() {
                             selectedSlot?.originalTime === slot.time_slot &&
                             selectedSlot?.date.toDateString() === weekDates[index].toDateString() &&
                             selectedSlot?.modality === slot.modality
+
+                          if (slot.isBooked) {
+                            return (
+                              <div
+                                key={`${timeIndex}-${slot.modality}`}
+                                className="w-full text-xs flex flex-col gap-1 h-auto py-2 px-2 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed"
+                              >
+                                <div className="font-medium">{convertedTime}</div>
+                                <div className="flex items-center gap-1 text-xs opacity-75">
+                                  {slot.modality === "online" ? (
+                                    <Video className="h-3 w-3" />
+                                  ) : (
+                                    <MapPin className="h-3 w-3" />
+                                  )}
+                                  Reservado
+                                </div>
+                              </div>
+                            )
+                          }
 
                           return (
                             <Button
