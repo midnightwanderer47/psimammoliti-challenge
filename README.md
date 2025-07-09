@@ -54,7 +54,7 @@ Para ejecutar este proyecto, sigue estos pasos:
 
 ## 4. Documento funcional
 
-1. **Flowchart**
+1. **Flowchart** — Qué se puede hacer y cómo
 ```mermaid
 flowchart TD
     A[Usuario accede a la plataforma] --> B[Ver lista de psicólogos]
@@ -105,3 +105,47 @@ flowchart TD
     class C,G,L decision
     class S success
 ```
+
+2. Flujos cubiertos
+
+### 👥 **Visualización de Psicólogos**
+- Lista completa de psicólogos disponibles en tarjetas responsivas
+- Información detallada: nombre, foto, experiencia, calificación, especialidades, descripción, precio y modalidades
+- Indicadores de disponibilidad en cada tarjeta
+
+### 🔍 **Sistema de Filtros y Búsqueda**
+- Búsqueda en tiempo real por nombre o especialidad
+- Filtros por especialidad específica (Fobias, Depresión, Ansiedad Social, etc.)
+- Filtros por modalidad (Online/Presencial/Todas)
+- Badges visuales para filtros activos y contador de resultados
+
+### 📅 **Sistema de Reservas**
+- Calendario semanal con navegación entre semanas
+- Horarios mostrados en zona horaria local del usuario
+- Selección de modalidad (online/presencial) por slot
+- Formulario de paciente con validación
+- Resumen de cita antes de confirmar
+
+### ⏰ **Gestión de Horarios**
+- Detección automática de zona horaria del navegador
+- Conversión de horarios UTC a hora local
+- Ocultación automática de horarios pasados
+- Indicadores visuales para diferentes estados de disponibilidad
+
+### ✅ **Proceso de Confirmación**
+- Confirmación inmediata de reserva con modal detallado
+- Información específica según modalidad elegida
+- Instrucciones claras para el día de la sesión
+
+### 📱 **Características Técnicas**
+- Diseño completamente responsivo (desktop, tablet, móvil)
+- Interfaz en español con formatos localizados
+- Navegación por teclado y compatibilidad con lectores de pantalla
+
+### 🚫 **Limitaciones Actuales**
+- No incluye procesamiento de pagos
+- No requiere autenticación de usuario
+- No mantiene historial de reservas
+- No permite cancelaciones o modificaciones
+- No envía notificaciones automáticas
+- No incluye sistema de videollamadas integrado
