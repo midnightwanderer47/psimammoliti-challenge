@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video, MapPin } from "lucide-react"
+import { CheckCircle, ChevronLeft, ChevronRight, Loader2, Shield, Video, MapPin, Brain, Users } from "lucide-react"
 import { getPsychologists, getSpecialties, bookSession } from "@/lib/database"
 import type { PsychologistWithSpecialties, Specialty } from "@/lib/supabase"
 import { PsychologistCard } from "@/components/psychologist-card"
@@ -20,16 +20,16 @@ const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes
 export default function PsychologyApp() {
   const [psychologists, setPsychologists] = useState<PsychologistWithSpecialties[]>([])
   const [specialties, setSpecialties] = useState<Specialty[]>([])
-  const [selectedSpecialty, setSelectedSpecialty] = useState("Todas")
-  const [selectedModality, setSelectedModality] = useState("Todas")
-  const [searchQuery, setSearchQuery] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [selectedSpecialties, setSelectedSpecialties] = useState<number[]>([])
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 200])
+  const [selectedModality, setSelectedModality] = useState<string>("todas")
   const [selectedPsychologist, setSelectedPsychologist] = useState<PsychologistWithSpecialties | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<any>(null)
   const [bookedAppointment, setBookedAppointment] = useState<any>(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [currentWeek, setCurrentWeek] = useState(0)
   const [userTimezone, setUserTimezone] = useState("")
-  const [loading, setLoading] = useState(true)
   const [bookingLoading, setBookingLoading] = useState(false)
 
   // Formulario de paciente
@@ -52,7 +52,7 @@ export default function PsychologyApp() {
     try {
       const [psychologistsData, specialtiesData] = await Promise.all([getPsychologists(), getSpecialties()])
       setPsychologists(psychologistsData)
-      setSpecialties([{ id: 0, name: "Todas", description: "" }, ...specialtiesData])
+      setSpecialties(specialtiesData)
 
       if (psychologistsData.length > 0 && psychologistsData[0].id) {
         setDatabaseReady(true)
@@ -66,39 +66,29 @@ export default function PsychologyApp() {
   }
 
   const filteredPsychologists = useMemo(() => {
-    let filtered = psychologists
+    return psychologists.filter((psychologist) => {
+      // Filter by specialties
+      if (selectedSpecialties.length > 0) {
+        const hasMatchingSpecialty = psychologist.specialties.some((specialty) =>
+          selectedSpecialties.includes(specialty.id),
+        )
+        if (!hasMatchingSpecialty) return false
+      }
 
-    // Filter by specialty
-    if (selectedSpecialty !== "Todas") {
-      filtered = filtered.filter((p) => p.specialties.some((s) => s.name === selectedSpecialty))
-    }
+      // Filter by price range
+      if (psychologist.price < priceRange[0] || psychologist.price > priceRange[1]) {
+        return false
+      }
 
-    // Filter by modality
-    if (selectedModality !== "Todas") {
-      filtered = filtered.filter((p) =>
-        p.available_slots.some((slot) => slot.modality === selectedModality && slot.is_available),
-      )
-    }
+      // Filter by modality
+      if (selectedModality !== "todas") {
+        const hasMatchingModality = psychologist.available_slots.some((slot) => slot.modality === selectedModality)
+        if (!hasMatchingModality) return false
+      }
 
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query) ||
-          p.specialties.some((s) => s.name.toLowerCase().includes(query)),
-      )
-    }
-
-    return filtered
-  }, [psychologists, selectedSpecialty, selectedModality, searchQuery])
-
-  const resetFilters = () => {
-    setSelectedSpecialty("Todas")
-    setSelectedModality("Todas")
-    setSearchQuery("")
-  }
+      return true
+    })
+  }, [psychologists, selectedSpecialties, priceRange, selectedModality])
 
   const getWeekDates = (weekOffset = 0) => {
     const today = new Date()
@@ -266,73 +256,62 @@ export default function PsychologyApp() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
-            <div className="w-2 h-2 bg-foreground rounded-full animate-pulse" />
-            Plataforma líder en salud mental online
-          </div>
-          <h1 className="text-5xl font-bold mb-4">Psimammoliti Online</h1>
-          <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Conecta con psicólogos profesionales certificados desde la comodidad de tu hogar
-          </p>
+      <StatusBanner />
 
-          {/* Features */}
-          <div className="flex flex-wrap justify-center gap-6 mb-8">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Shield className="h-4 w-4" />
-              <span>100% Confidencial</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Video className="h-4 w-4" />
-              <span>Sesiones Online</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              <span>Sesiones Presenciales</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>Disponible 24/7</span>
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">Encuentra tu psicólogo ideal</h1>
+            <p className="text-xl md:text-2xl mb-8 text-blue-100">
+              Conecta con profesionales especializados en tu área de necesidad
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
+              <div className="text-center">
+                <Brain className="h-8 w-8 mx-auto mb-2" />
+                <p className="text-sm">Especialistas Certificados</p>
+              </div>
+              <div className="text-center">
+                <Video className="h-8 w-8 mx-auto mb-2" />
+                <p className="text-sm">Sesiones Online</p>
+              </div>
+              <div className="text-center">
+                <MapPin className="h-8 w-8 mx-auto mb-2" />
+                <p className="text-sm">Sesiones Presenciales</p>
+              </div>
+              <div className="text-center">
+                <Shield className="h-8 w-8 mx-auto mb-2" />
+                <p className="text-sm">100% Confidencial</p>
+              </div>
             </div>
           </div>
-
-          {userTimezone && (
-            <div className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>Horarios en tu zona: {userTimezone}</span>
-            </div>
-          )}
         </div>
+      </div>
 
-        {/* Status Banners */}
-        {!databaseReady && !loading && (
-          <StatusBanner
-            type="demo"
-            message="Modo Demo: La base de datos se está configurando. Mostrando datos de demostración."
-            onRetry={loadData}
-            showRetry={true}
-          />
-        )}
-
-        {error && <StatusBanner type="error" message={error} />}
-
-        {/* Filters */}
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
         <FilterSection
           specialties={specialties}
-          selectedSpecialty={selectedSpecialty}
-          onSpecialtyChange={setSelectedSpecialty}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          selectedSpecialties={selectedSpecialties}
+          onSpecialtyChange={setSelectedSpecialties}
+          priceRange={priceRange}
+          onPriceRangeChange={setPriceRange}
           selectedModality={selectedModality}
           onModalityChange={setSelectedModality}
-          resultCount={filteredPsychologists.length}
         />
+
+        {/* Results Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5 mx-auto mb-2" />
+            <h2 className="text-xl font-semibold">{filteredPsychologists.length} psicólogos disponibles</h2>
+          </div>
+          <div className="text-sm text-gray-600">Mostrando resultados filtrados</div>
+        </div>
 
         {/* Psychologists Grid */}
         {filteredPsychologists.length > 0 ? (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPsychologists.map((psychologist) => (
               <PsychologistCard
                 key={psychologist.id}
@@ -342,7 +321,13 @@ export default function PsychologyApp() {
             ))}
           </div>
         ) : (
-          <EmptyState type={psychologists.length === 0 ? "no-psychologists" : "no-results"} onReset={resetFilters} />
+          <EmptyState
+            onClearFilters={() => {
+              setSelectedSpecialties([])
+              setPriceRange([0, 200])
+              setSelectedModality("todas")
+            }}
+          />
         )}
 
         {/* Booking Modal */}
