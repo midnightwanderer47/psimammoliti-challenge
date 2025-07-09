@@ -181,7 +181,7 @@ export default function PsychologyApp() {
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-            <h1 className="text-4xl font-bold mb-2">MentalCare Online</h1>
+            <h1 className="text-4xl font-bold mb-2">Psimammoliti Online</h1>
             <p className="text-lg text-muted-foreground">Cargando psicólogos disponibles...</p>
           </div>
           <LoadingSkeleton />
@@ -199,7 +199,7 @@ export default function PsychologyApp() {
             <div className="w-2 h-2 bg-foreground rounded-full animate-pulse" />
             Plataforma líder en salud mental online
           </div>
-          <h1 className="text-5xl font-bold mb-4">MentalCare Online</h1>
+          <h1 className="text-5xl font-bold mb-4">Psimammoliti Online</h1>
           <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
             Conecta con psicólogos profesionales certificados desde la comodidad de tu hogar
           </p>
