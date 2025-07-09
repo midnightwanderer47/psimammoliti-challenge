@@ -55,7 +55,7 @@ Se asumió:
 
 ## 3. Documento funcional
 
-### 1. Flowchart: Qué se puede hacer y cómo
+### 1. Flowchart (qué se puede hacer y cómo)
 ```mermaid
 flowchart TD
     A[Usuario accede a la plataforma] --> B[Ver lista de psicólogos]
@@ -110,35 +110,35 @@ flowchart TD
 ### 2. Flujos cubiertos
 
 1. Visualización de psicólogos
-- Lista completa de psicólogos disponibles en tarjetas responsivas
-- Información detallada: nombre, foto, experiencia, calificación, especialidades, descripción, precio y modalidades
-- Indicadores de disponibilidad en cada tarjeta
+    - Lista completa de psicólogos disponibles en tarjetas responsivas
+    - Información detallada: nombre, foto, experiencia, calificación, especialidades, descripción, precio y modalidades
+    - Indicadores de disponibilidad en cada tarjeta
 
 2. Sistema de filtros y búsqueda
-- Búsqueda en tiempo real por nombre o especialidad
-- Filtros por especialidad específica (Fobias, Depresión, Ansiedad Social, etc.)
-- Filtros por modalidad (Online/Presencial/Todas)
-- Badges visuales para filtros activos y contador de resultados
+    - Búsqueda en tiempo real por nombre o especialidad
+    - Filtros por especialidad específica (Fobias, Depresión, Ansiedad Social, etc.)
+    - Filtros por modalidad (Online/Presencial/Todas)
+    - Badges visuales para filtros activos y contador de resultados
 
 3. Sistema de reservas
-- Calendario semanal con navegación entre semanas
-- Horarios mostrados en zona horaria local del usuario
-- Selección de modalidad (online/presencial) por slot
-- Formulario de paciente con validación
-- Resumen de cita antes de confirmar
+    - Calendario semanal con navegación entre semanas
+    - Horarios mostrados en zona horaria local del usuario
+    - Selección de modalidad (online/presencial) por slot
+    - Formulario de paciente con validación
+    - Resumen de cita antes de confirmar
 
 4. Gestión de horarios
-- Detección automática de zona horaria del navegador
-- Conversión de horarios UTC a hora local
-- Ocultación automática de horarios pasados
-- Indicadores visuales para diferentes estados de disponibilidad
+    - Detección automática de zona horaria del navegador
+    - Conversión de horarios UTC a hora local
+    - Ocultación automática de horarios pasados
+    - Indicadores visuales para diferentes estados de disponibilidad
 
 5. Proceso de confirmación
-- Confirmación inmediata de reserva con modal detallado
-- Información específica según modalidad elegida
-- Instrucciones claras para el día de la sesión
+    - Confirmación inmediata de reserva con modal detallado
+    - Información específica según modalidad elegida
+    - Instrucciones claras para el día de la sesión
 
 6. Características técnicas
-- Diseño completamente responsivo (desktop, tablet, móvil)
-- Interfaz en español con formatos localizados
-- Navegación por teclado y compatibilidad con lectores de pantalla
+    - Diseño completamente responsivo (desktop, tablet, móvil)
+    - Interfaz en español con formatos localizados
+    - Navegación por teclado y compatibilidad con lectores de pantalla
