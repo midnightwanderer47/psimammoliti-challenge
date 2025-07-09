@@ -51,8 +51,8 @@ Se armó un prototipo inicial con las siguientes tecnologías:
 El prototipo cumple funcionalmente con los requerimientos. Estaría listo para salir a testear con usuarios y empezar a validar diferentes hipótesis.
 
 Se asumió:
-- La necesidad de un MVP que sirva para testear algunas ideas iniciales
-- Saber que como MVP, va a estar sujeto a cambio con base en la interacción el usuario, por lo cual toda la infrastructura debe ser fácilmente iterable (ej., no debe estar sobre una arquitectura demasiado compleja de luego modificar)
+1. La necesidad de un MVP que sirva para testear algunas ideas iniciales
+2. Saber que como MVP, va a estar sujeto a cambio con base en la interacción el usuario, por lo cual toda la infrastructura debe ser fácilmente iterable (ej., no debe estar sobre una arquitectura demasiado compleja de luego modificar)
 
 ## 3. Documento funcional
 
