@@ -5,148 +5,50 @@
 Psimammoliti Online es una plataforma web para la reserva de sesiones de psicología que permite a los usuarios encontrar y agendar citas con psicólogos profesionales, tanto en modalidad online como presencial.
 
 
-## Flowchart
-```mermaid
-flowchart TD
-    A[Usuario accede a la plataforma] --> B[Ver lista de psicólogos]
-    
-    B --> C{¿Usar filtros?}
-    C -->|Sí| D[Aplicar filtros]
-    C -->|No| E[Seleccionar psicólogo]
-    
-    D --> D1[Buscar por nombre]
-    D --> D2[Filtrar por especialidad]
-    D --> D3[Filtrar por modalidad]
-    D1 --> F[Ver resultados filtrados]
-    D2 --> F
-    D3 --> F
-    
-    F --> G{¿Resultados OK?}
-    G -->|No| H[Limpiar filtros]
-    G -->|Sí| E
-    H --> B
-    
-    E --> I[Clic en Ver Disponibilidad]
-    I --> J[Modal de reserva se abre]
-    J --> K[Ver calendario semanal]
-    
-    K --> L{¿Cambiar semana?}
-    L -->|Sí| M[Navegar semanas]
-    L -->|No| N[Seleccionar horario]
-    M --> K
-    
-    N --> O[Elegir modalidad Online/Presencial]
-    O --> P[Completar datos del paciente]
-    P --> Q[Revisar resumen]
-    Q --> R[Confirmar reserva]
-    R --> S[Confirmación exitosa]
-    
-    T[Carga inicial] --> U[Skeleton loader]
-    V[Error conexión] --> W[Banner de error]
-    X[Horarios disponibles] --> Y[Slots seleccionables]
-    X --> Z[Slots ocupados]
-    
-    classDef primary fill:#e3f2fd,stroke:#1976d2
-    classDef process fill:#f3e5f5,stroke:#7b1fa2
-    classDef decision fill:#fff3e0,stroke:#f57c00
-    classDef success fill:#e8f5e8,stroke:#388e3c
-    
-    class A,E,I,N,O,R primary
-    class B,D1,D2,D3,F,J,K,M,P,Q process
-    class C,G,L decision
-    class S success
-```
-
 ## Funcionalidades Principales
 
-### 1. Visualización de Psicólogos
+### 👥 **Visualización de Psicólogos**
+- Lista completa de psicólogos disponibles en tarjetas responsivas
+- Información detallada: nombre, foto, experiencia, calificación, especialidades, descripción, precio y modalidades
+- Indicadores de disponibilidad en cada tarjeta
 
-**¿Qué se puede hacer?**
-- Ver una lista completa de psicólogos disponibles
-- Consultar información detallada de cada profesional:
-  - Nombre y foto de perfil
-  - Años de experiencia
-  - Calificación (sistema de estrellas)
-  - Especialidades
-  - Descripción profesional
-  - Precio por sesión (50 minutos)
-  - Modalidades disponibles (Online/Presencial)
+### 🔍 **Sistema de Filtros y Búsqueda**
+- Búsqueda en tiempo real por nombre o especialidad
+- Filtros por especialidad específica (Fobias, Depresión, Ansiedad Social, etc.)
+- Filtros por modalidad (Online/Presencial/Todas)
+- Badges visuales para filtros activos y contador de resultados
 
-**¿Cómo funciona?**
-- Los psicólogos se muestran en tarjetas organizadas en una cuadrícula responsiva
-- Cada tarjeta incluye un indicador de disponibilidad
-- Se muestra un resumen de las modalidades ofrecidas por cada profesional
-
-### 2. Sistema de Filtros y Búsqueda
-
-**¿Qué se puede hacer?**
-- Buscar psicólogos por nombre o especialidad
-- Filtrar por especialidad específica
-- Filtrar por modalidad de sesión (Online/Presencial/Todas)
-- Limpiar filtros activos individualmente
-- Ver contador de resultados en tiempo real
-
-**¿Cómo funciona?**
-- Búsqueda en tiempo real mientras se escribe
-- Filtros combinables para refinar resultados
-- Badges visuales que muestran filtros activos
-- Botón de reset para limpiar todos los filtros
-
-**Especialidades disponibles:**
-- Fobias
-- Depresión
-- Ansiedad Social
-- Relaciones Personales
-- Terapia de Pareja
-- Estrés Laboral
-- Autoestima
-- Duelo
-- Trauma
-- Burnout
-- Comunicación
-
-### 3. Sistema de Reservas
-
-**¿Qué se puede hacer?**
-- Ver disponibilidad semanal de cada psicólogo
-- Navegar entre semanas (anterior/siguiente)
-- Seleccionar horarios disponibles
-- Elegir entre modalidades online y presencial
-- Completar información del paciente
-- Confirmar la reserva
-
-**¿Cómo funciona?**
-- Calendario semanal con vista desktop y móvil optimizada
-- Horarios mostrados en la zona horaria del usuario
-- Slots ocupados claramente marcados como no disponibles
+### 📅 **Sistema de Reservas**
+- Calendario semanal con navegación entre semanas
+- Horarios mostrados en zona horaria local del usuario
+- Selección de modalidad (online/presencial) por slot
 - Formulario de paciente con validación
-- Resumen de la cita antes de confirmar
+- Resumen de cita antes de confirmar
 
-### 4. Gestión de Horarios
-
-**¿Qué se puede hacer?**
-- Ver horarios en la zona horaria local del usuario
-- Identificar slots ya reservados
-- Filtrar horarios pasados automáticamente
-- Ver disponibilidad por día de la semana
-
-**¿Cómo funciona?**
+### ⏰ **Gestión de Horarios**
 - Detección automática de zona horaria del navegador
 - Conversión de horarios UTC a hora local
 - Ocultación automática de horarios pasados
 - Indicadores visuales para diferentes estados de disponibilidad
 
-### 5. Proceso de Confirmación
-
-**¿Qué se puede hacer?**
-- Recibir confirmación inmediata de la reserva
-- Ver todos los detalles de la cita agendada
-- Obtener información sobre próximos pasos
-
-**¿Cómo funciona?**
-- Modal de confirmación con detalles completos
-- Información específica según modalidad (online/presencial)
+### ✅ **Proceso de Confirmación**
+- Confirmación inmediata de reserva con modal detallado
+- Información específica según modalidad elegida
 - Instrucciones claras para el día de la sesión
+
+### 📱 **Características Técnicas**
+- Diseño completamente responsivo (desktop, tablet, móvil)
+- Interfaz en español con formatos localizados
+- Navegación por teclado y compatibilidad con lectores de pantalla
+- Fallback a datos de demostración si la BD no está disponible
+
+### 🚫 **Limitaciones Actuales**
+- No incluye procesamiento de pagos
+- No requiere autenticación de usuario
+- No mantiene historial de reservas
+- No permite cancelaciones o modificaciones
+- No envía notificaciones automáticas
+- No incluye sistema de videollamadas integrado
 
 ## Flujos de Usuario Cubiertos
 

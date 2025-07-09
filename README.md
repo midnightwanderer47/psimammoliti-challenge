@@ -51,3 +51,57 @@ Para ejecutar este proyecto, sigue estos pasos:
   * Vercel — deployent y continuos integration
   * Cursor — editor de código
   * GitHub — versionado de cambios
+
+## 4. Documento funcional
+
+1. **Flowchart**
+```mermaid
+flowchart TD
+    A[Usuario accede a la plataforma] --> B[Ver lista de psicólogos]
+    
+    B --> C{¿Usar filtros?}
+    C -->|Sí| D[Aplicar filtros]
+    C -->|No| E[Seleccionar psicólogo]
+    
+    D --> D1[Buscar por nombre]
+    D --> D2[Filtrar por especialidad]
+    D --> D3[Filtrar por modalidad]
+    D1 --> F[Ver resultados filtrados]
+    D2 --> F
+    D3 --> F
+    
+    F --> G{¿Resultados OK?}
+    G -->|No| H[Limpiar filtros]
+    G -->|Sí| E
+    H --> B
+    
+    E --> I[Clic en Ver Disponibilidad]
+    I --> J[Modal de reserva se abre]
+    J --> K[Ver calendario semanal]
+    
+    K --> L{¿Cambiar semana?}
+    L -->|Sí| M[Navegar semanas]
+    L -->|No| N[Seleccionar horario]
+    M --> K
+    
+    N --> O[Elegir modalidad Online/Presencial]
+    O --> P[Completar datos del paciente]
+    P --> Q[Revisar resumen]
+    Q --> R[Confirmar reserva]
+    R --> S[Confirmación exitosa]
+    
+    T[Carga inicial] --> U[Skeleton loader]
+    V[Error conexión] --> W[Banner de error]
+    X[Horarios disponibles] --> Y[Slots seleccionables]
+    X --> Z[Slots ocupados]
+    
+    classDef primary fill:#e3f2fd,stroke:#1976d2
+    classDef process fill:#f3e5f5,stroke:#7b1fa2
+    classDef decision fill:#fff3e0,stroke:#f57c00
+    classDef success fill:#e8f5e8,stroke:#388e3c
+    
+    class A,E,I,N,O,R primary
+    class B,D1,D2,D3,F,J,K,M,P,Q process
+    class C,G,L decision
+    class S success
+```
