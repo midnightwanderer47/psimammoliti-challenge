@@ -2,31 +2,32 @@
 
 ## 1. Instrucciones
 
-### Ver deployment
+### Deployment
 
 - **URL:** https://psimammoliti-challenge.francosbenitez.com/
 
 ### Levantar localmente
 
-1.  **Clonar repo**
+1.  Clonar repo
     ```bash
     git clone <URL_DEL_REPOSITORIO>
     cd psimammoliti-challenge
     ```
 
-2.  **Instalar dependencias**
+2.  Instalar dependencias
     Este proyecto usa `npm`. Requiere tener Node instalado.
     ```bash
     npm install
     ```
 
-3.  **Configurar variables de entorno**
+3.  Configurar variables de entorno
+
     Crear un archivo `.env` en la raíz del proyecto y agregá estas variables:
 
     *   `NEXT_PUBLIC_SUPABASE_URL`: La URL de tu instancia de Supabase.
     *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: La clave anónima de la instancia de Supabase.
 
-4.  **Ejecutá la app**
+4.  Ejecutar app
     ```bash
     npm run dev
     ```
