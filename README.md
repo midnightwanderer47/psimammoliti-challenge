@@ -2,6 +2,12 @@
 
 ## 1. Instrucciones
 
+### Ver deployment
+
+- **URL:** https://psimammoliti-challenge.francosbenitez.com/
+
+### Levantar localmente
+
 1.  **Clonar repo**
     ```bash
     git clone <URL_DEL_REPOSITORIO>
