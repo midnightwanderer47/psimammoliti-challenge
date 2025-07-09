@@ -54,7 +54,7 @@ Se asumió:
 
 ## 3. Documento funcional
 
-### Flowchart: Qué se puede hacer y cómo
+### 1. Flowchart: Qué se puede hacer y cómo
 ```mermaid
 flowchart TD
     A[Usuario accede a la plataforma] --> B[Ver lista de psicólogos]
@@ -106,7 +106,7 @@ flowchart TD
     class S success
 ```
 
-### Flujos cubiertos
+### 2. Flujos cubiertos
 
 **Visualización de psicólogos**
 - Lista completa de psicólogos disponibles en tarjetas responsivas
