@@ -36,12 +36,12 @@ Para ejecutar este proyecto, seguí estos pasos:
 
 ## 2. Decisiones técnicas y funcionales
 
-*   **Framework:** Usamos Next.js para el frontend por su renderizado del lado del servidor (SSR), enrutamiento fácil y optimización del rendimiento.
-*   **Componentes de la interfaz de usuario:** Usamos la biblioteca Shadcn/ui para los componentes de la interfaz de usuario, lo que nos da coherencia visual y accesibilidad.
-*   **Base de datos:** Usamos Supabase como base de datos y backend como servicio (BaaS) por su facilidad de uso, escalabilidad y capacidades en tiempo real.
-*   **Gestión de estado:** Usamos los hooks de React (`useState`, `useEffect`, `useMemo`) para manejar el estado de la aplicación y optimizar el rendimiento.
-*   **Diseño responsivo:** Usamos Tailwind CSS para crear un diseño responsivo que se adapte a diferentes tamaños de pantalla, con especial atención a la experiencia móvil.
-*   **Librería de iconos:** Usamos `lucide-react` para los iconos.
+*   **Framework:** Usé Next.js para el frontend por su renderizado del lado del servidor (SSR), enrutamiento fácil y optimización del rendimiento.
+*   **Componentes de la interfaz de usuario:** Usé la biblioteca Shadcn/ui para los componentes de la interfaz de usuario, lo que me da coherencia visual y accesibilidad.
+*   **Base de datos:** Usé Supabase como base de datos y backend como servicio (BaaS) por su facilidad de uso, escalabilidad y capacidades en tiempo real.
+*   **Gestión de estado:** Usé los hooks de React (`useState`, `useEffect`, `useMemo`) para manejar el estado de la aplicación y optimizar el rendimiento.
+*   **Diseño responsivo:** Usé Tailwind CSS para crear un diseño responsivo que se adapte a diferentes tamaños de pantalla, con especial atención a la experiencia móvil.
+*   **Librería de iconos:** Usé `lucide-react` para los iconos.
 
 ## 3. Detalle: Lo que se hizo y se asumió
 
@@ -106,7 +106,7 @@ flowchart TD
     class S success
 ```
 
-### Flujos que cubrimos
+### Flujos que cubrí
 
 **Visualización de psicólogos**
 - Lista completa de psicólogos disponibles en tarjetas responsivas
