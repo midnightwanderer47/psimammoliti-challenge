@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video, Users } from "lucide-react"
+import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video } from "lucide-react"
 import { getPsychologists, getSpecialties, bookSession } from "@/lib/database"
 import type { PsychologistWithSpecialties, Specialty } from "@/lib/supabase"
 import { PsychologistCard } from "@/components/psychologist-card"
@@ -37,7 +37,6 @@ export default function PsychologyApp() {
 
   const [error, setError] = useState<string | null>(null)
   const [databaseReady, setDatabaseReady] = useState(false)
-  const [apiStatus, setApiStatus] = useState<string | null>(null)
 
   useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -48,7 +47,6 @@ export default function PsychologyApp() {
   const loadData = async () => {
     setLoading(true)
     setError(null)
-    setApiStatus("Cargando psicólogos con fotos reales...")
 
     try {
       const [psychologistsData, specialtiesData] = await Promise.all([getPsychologists(), getSpecialties()])
@@ -57,18 +55,12 @@ export default function PsychologyApp() {
 
       if (psychologistsData.length > 0 && psychologistsData[0].id) {
         setDatabaseReady(true)
-        setApiStatus("✅ Psicólogos cargados con fotos reales de Random User API")
-      } else {
-        setApiStatus("⚠️ Usando datos de demostración con fotos reales")
       }
     } catch (error) {
       console.error("Error loading data:", error)
       setError("Error cargando datos. Usando datos de demostración.")
-      setApiStatus("❌ Error en la carga, usando datos de respaldo")
     } finally {
       setLoading(false)
-      // Clear API status after 3 seconds
-      setTimeout(() => setApiStatus(null), 3000)
     }
   }
 
@@ -253,7 +245,6 @@ export default function PsychologyApp() {
             </div>
             <h1 className="text-4xl font-bold mb-2">Psimammoliti Online</h1>
             <p className="text-lg text-muted-foreground">Cargando psicólogos disponibles...</p>
-            {apiStatus && <p className="text-sm text-muted-foreground mt-2">{apiStatus}</p>}
           </div>
           <LoadingSkeleton />
         </div>
@@ -289,10 +280,6 @@ export default function PsychologyApp() {
               <Clock className="h-4 w-4" />
               <span>Disponible 24/7</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Users className="h-4 w-4" />
-              <span>Perfiles Reales</span>
-            </div>
           </div>
 
           {userTimezone && (
@@ -304,12 +291,10 @@ export default function PsychologyApp() {
         </div>
 
         {/* Status Banners */}
-        {apiStatus && <StatusBanner type="info" message={apiStatus} />}
-
         {!databaseReady && !loading && (
           <StatusBanner
             type="demo"
-            message="Modo Demo: La base de datos se está configurando. Mostrando datos de demostración con fotos reales."
+            message="Modo Demo: La base de datos se está configurando. Mostrando datos de demostración."
             onRetry={loadData}
             showRetry={true}
           />
@@ -526,75 +511,62 @@ export default function PsychologyApp() {
         <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle className="text-center text-2xl">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="h-8 w-8" />
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
                 </div>
-                ¡Cita Agendada Exitosamente!
-              </DialogTitle>
+                <div>
+                  <DialogTitle className="text-xl text-green-800">¡Cita Agendada!</DialogTitle>
+                  <DialogDescription className="text-green-600">
+                    Tu sesión ha sido confirmada exitosamente
+                  </DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
 
             {bookedAppointment && (
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Detalles de tu Cita</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">ID de Sesión:</span>
-                      <span className="font-mono font-medium">#{bookedAppointment.sessionData.id}</span>
+              <div className="space-y-4">
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h3 className="font-semibold text-green-800 mb-2">Detalles de tu cita:</h3>
+                  <div className="space-y-2 text-sm text-green-700">
+                    <div>
+                      <span className="font-medium">Psicólogo:</span> {bookedAppointment.psychologist.name}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Psicólogo:</span>
-                      <span className="font-medium">{bookedAppointment.psychologist.name}</span>
+                    <div>
+                      <span className="font-medium">Fecha:</span>{" "}
+                      {bookedAppointment.slot.date.toLocaleDateString("es-ES", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Fecha:</span>
-                      <span className="font-medium">
-                        {bookedAppointment.slot.date.toLocaleDateString("es-ES", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </span>
+                    <div>
+                      <span className="font-medium">Hora:</span> {bookedAppointment.slot.convertedTime} (
+                      {bookedAppointment.userTimezone})
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Hora:</span>
-                      <span className="font-medium">{bookedAppointment.slot.convertedTime}</span>
+                    <div>
+                      <span className="font-medium">Modalidad:</span> Sesión Online
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Precio:</span>
-                      <span className="font-semibold">${bookedAppointment.psychologist.price} USD</span>
+                    <div>
+                      <span className="font-medium">Precio:</span> ${bookedAppointment.psychologist.price} USD
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Próximos Pasos</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="text-sm space-y-2">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 mt-0.5" />
-                        <span>Recibirás un email de confirmación en los próximos minutos</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 mt-0.5" />
-                        <span>El enlace de la videollamada se enviará 30 minutos antes</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 mt-0.5" />
-                        <span>Asegúrate de tener una conexión estable a internet</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
+                <div className="text-sm text-muted-foreground bg-muted p-4 rounded-lg">
+                  <p className="mb-2">
+                    <strong>Próximos pasos:</strong>
+                  </p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Recibirás un email de confirmación en los próximos minutos</li>
+                    <li>Te enviaremos el enlace de la videollamada 30 minutos antes de tu cita</li>
+                    <li>Asegúrate de tener una conexión estable a internet</li>
+                  </ul>
+                </div>
 
-                <Button className="w-full h-12" onClick={() => setShowConfirmation(false)}>
-                  Perfecto, ¡Entendido!
+                <Button className="w-full" onClick={() => setShowConfirmation(false)}>
+                  Entendido
                 </Button>
               </div>
             )}
