@@ -55,7 +55,7 @@ Se asumió:
 
 ## 3. Documento funcional
 
-### 1. Flowchart (qué se puede hacer y cómo)
+### 1. Flowchart
 ```mermaid
 flowchart TD
     A[Usuario accede a la plataforma] --> B[Ver lista de psicólogos]
