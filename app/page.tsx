@@ -271,6 +271,7 @@ export default function PsychologyApp() {
     return psychologist.available_slots
       .filter((slot) => slot.day_of_week === dayOfWeek && slot.is_available)
       .filter((slot) => !isSlotInPast(date, slot.time_slot))
+      .sort((a, b) => a.time_slot.localeCompare(b.time_slot)) // Add this line to sort by time
       .map((slot) => ({
         time_slot: slot.time_slot,
         modality: slot.modality,
