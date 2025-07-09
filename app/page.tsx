@@ -106,9 +106,71 @@ export default function PsychologyApp() {
   }
 
   const convertTimeToUserTimezone = (time: string) => {
-    if (!userTimezone) return time
-    return time
-  }
+    if (!userTimezone || !time) {
+      console.log("No timezone or time provided:", { userTimezone, time });
+      return time;
+    }
+
+    try {
+      // Parse the time string (format: "HH:MM")
+      const [hours, minutes] = time.split(":").map(Number);
+      
+      if (isNaN(hours) || isNaN(minutes)) {
+        console.error("Invalid time format:", time);
+        return time;
+      }
+
+      // Create a date object for today
+      const today = new Date();
+      
+      // Create a proper UTC date string for today with the given time
+      const dateString = today.toISOString().split("T")[0]; // YYYY-MM-DD format
+      
+      // Ensure time is in HH:MM format (remove any seconds if present)
+      const cleanTime = time.split(":").slice(0, 2).join(":");
+      const utcDateTimeString = `${dateString}T${cleanTime}:00.000Z`; // UTC time
+      
+      // Debug: log the time conversion
+      if (process.env.NODE_ENV === "development") {
+        console.log("Time conversion debug:", {
+          originalTime: time,
+          cleanTime: cleanTime,
+          utcDateTimeString: utcDateTimeString
+        });
+      }
+      
+      // Create a Date object from the UTC time
+      const utcDate = new Date(utcDateTimeString);
+      
+      if (isNaN(utcDate.getTime())) {
+        console.error("Invalid UTC date:", utcDateTimeString);
+        return time;
+      }
+      
+      // Get the time in user's timezone using a simpler approach
+      const userTimeString = utcDate.toLocaleTimeString("en-US", {
+        timeZone: userTimezone,
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+      
+      // Validate the result
+      if (userTimeString && userTimeString !== "Invalid Date") {
+        return userTimeString;
+      } else {
+        console.error("Invalid timezone conversion result:", userTimeString);
+        return time; // Fallback to original time
+      }
+    } catch (error) {
+      console.error("Error converting timezone:", error);
+      
+      // Simple fallback: just return the original time if conversion fails
+      // This ensures the UI doesn't break even if timezone conversion fails
+      return time;
+    }
+  };
+
 
   const handleBookAppointment = async () => {
     if (!selectedPsychologist || !selectedSlot || !patientName || !patientEmail) {
