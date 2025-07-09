@@ -1,5 +1,5 @@
 import { supabase } from "./supabase"
-import { fetchRandomUser } from "./randomuser"
+// import { fetchRandomUser } from "./randomuser"
 import type { PsychologistWithSpecialties, Session } from "./supabase"
 
 // Enhanced fallback data with more realistic information
@@ -577,12 +577,12 @@ async function createFallbackPsychologists(): Promise<PsychologistWithSpecialtie
   // Fetch user data from Random User API for each psychologist
   const psychologists = await Promise.all(
     psychologistTemplates.map(async (template, index) => {
-      const userData = await fetchRandomUser(index)
+      // const userData = await fetchRandomUser(index)
 
       return {
         ...template,
-        name: userData.name,
-        image_url: userData.image_url,
+        // name: userData.name,
+        // image_url: userData.image_url,
         specialties: template.specialtyIds.map((id) => fallbackSpecialties.find((s) => s.id === id)!),
         timezone: "America/Mexico_City",
         created_at: new Date().toISOString(),
@@ -625,11 +625,11 @@ export async function getPsychologists(): Promise<PsychologistWithSpecialties[]>
         psychologists.map(async (p, index) => {
           // Try to get user data from Random User API, but keep original if it fails
           try {
-            const userData = await fetchRandomUser(index)
+            // const userData = await fetchRandomUser(index)
             return {
               ...p,
-              name: userData.name,
-              image_url: userData.image_url,
+              // name: userData.name,
+              // image_url: userData.image_url,
               specialties: p.psychologist_specialties.map((ps: any) => ps.specialties),
               available_slots: p.available_slots,
             }
