@@ -135,21 +135,21 @@ export default function PsychologyApp() {
       const year = slotDate.getFullYear()
       const month = slotDate.getMonth() + 1
       const day = slotDate.getDate()
-      
+
       // Create a date string in the user's timezone
-      const slotDateString = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
-      const slotTimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`
-      
+      const slotDateString = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`
+      const slotTimeString = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`
+
       // Create the full datetime string in the user's timezone
       const slotDateTimeString = `${slotDateString}T${slotTimeString}`
-      
+
       // Create a Date object that represents this time in the user's timezone
       // We'll use the Intl.DateTimeFormat to ensure proper timezone handling
-      const slotDateTime = new Date(slotDateTimeString + 'Z') // Add Z to treat as UTC
-      
+      const slotDateTime = new Date(slotDateTimeString + "Z") // Add Z to treat as UTC
+
       // Get current time
       const now = new Date()
-      
+
       // For debugging
       if (process.env.NODE_ENV === "development") {
         console.log("Slot time check:", {
@@ -158,7 +158,7 @@ export default function PsychologyApp() {
           now: now.toISOString(),
           userTimezone,
           timeSlot,
-          isPast: slotDateTime < now
+          isPast: slotDateTime < now,
         })
       }
 
@@ -420,7 +420,7 @@ export default function PsychologyApp() {
 
         {/* Booking Modal */}
         <Dialog open={!!selectedPsychologist} onOpenChange={() => setSelectedPsychologist(null)}>
-          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto sm:max-w-5xl w-[95vw] sm:w-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl">Agendar Sesión - {selectedPsychologist?.name}</DialogTitle>
               <DialogDescription className="text-lg">
@@ -430,58 +430,91 @@ export default function PsychologyApp() {
 
             <div className="space-y-6">
               {/* Week Navigation */}
-              <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                <Button variant="outline" size="sm" onClick={() => setCurrentWeek(currentWeek - 1)}>
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Anterior
+              <div className="flex items-center justify-between p-3 sm:p-4 bg-muted rounded-lg gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentWeek(currentWeek - 1)}
+                  className="flex-shrink-0"
+                >
+                  <ChevronLeft className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Anterior</span>
                 </Button>
-                <div className="text-center">
-                  <div className="font-semibold text-lg">
+                <div className="text-center min-w-0 flex-1">
+                  <div className="font-semibold text-sm sm:text-lg truncate">
                     {weekDates[0].toLocaleDateString("es-ES", { month: "long", year: "numeric" })}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     {formatDate(weekDates[0])} - {formatDate(weekDates[6])}
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setCurrentWeek(currentWeek + 1)}>
-                  Siguiente
-                  <ChevronRight className="h-4 w-4 ml-1" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentWeek(currentWeek + 1)}
+                  className="flex-shrink-0"
+                >
+                  <span className="hidden sm:inline">Siguiente</span>
+                  <ChevronRight className="h-4 w-4 sm:ml-1" />
                 </Button>
               </div>
 
               {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-3">
-                {dayNames.map((dayName, index) => {
-                  const availableSlots = selectedPsychologist
-                    ? getAvailableSlotsForDay(selectedPsychologist, index, weekDates[index])
-                    : []
+              <div className="space-y-4">
+                {/* Desktop Calendar - Hidden on mobile */}
+                <div className="hidden sm:grid sm:grid-cols-7 sm:gap-3">
+                  {dayNames.map((dayName, index) => {
+                    const availableSlots = selectedPsychologist
+                      ? getAvailableSlotsForDay(selectedPsychologist, index, weekDates[index])
+                      : []
 
-                  return (
-                    <div key={dayName} className="text-center">
-                      <div className="font-semibold text-sm mb-3 p-3 bg-muted rounded-lg border">
-                        <div>{dayName}</div>
-                        <div className="text-xs text-muted-foreground mt-1">{formatDate(weekDates[index])}</div>
-                      </div>
-                      <div className="space-y-2">
-                        {availableSlots.map((slot, timeIndex) => {
-                          const convertedTime = convertTimeToUserTimezone(slot.time_slot)
-                          const slotData = {
-                            date: weekDates[index],
-                            originalTime: slot.time_slot,
-                            convertedTime: convertedTime,
-                            day: dayName,
-                            modality: slot.modality,
-                          }
-                          const isSelected =
-                            selectedSlot?.originalTime === slot.time_slot &&
-                            selectedSlot?.date.toDateString() === weekDates[index].toDateString() &&
-                            selectedSlot?.modality === slot.modality
+                    return (
+                      <div key={dayName} className="text-center">
+                        <div className="font-semibold text-sm mb-3 p-3 bg-muted rounded-lg border">
+                          <div>{dayName}</div>
+                          <div className="text-xs text-muted-foreground mt-1">{formatDate(weekDates[index])}</div>
+                        </div>
+                        <div className="space-y-2">
+                          {availableSlots.map((slot, timeIndex) => {
+                            const convertedTime = convertTimeToUserTimezone(slot.time_slot)
+                            const slotData = {
+                              date: weekDates[index],
+                              originalTime: slot.time_slot,
+                              convertedTime: convertedTime,
+                              day: dayName,
+                              modality: slot.modality,
+                            }
+                            const isSelected =
+                              selectedSlot?.originalTime === slot.time_slot &&
+                              selectedSlot?.date.toDateString() === weekDates[index].toDateString() &&
+                              selectedSlot?.modality === slot.modality
 
-                          if (slot.isBooked) {
+                            if (slot.isBooked) {
+                              return (
+                                <div
+                                  key={`${timeIndex}-${slot.modality}`}
+                                  className="w-full text-xs flex flex-col gap-1 h-auto py-2 px-2 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed"
+                                >
+                                  <div className="font-medium">{convertedTime}</div>
+                                  <div className="flex items-center gap-1 text-xs opacity-75">
+                                    {slot.modality === "online" ? (
+                                      <Video className="h-3 w-3" />
+                                    ) : (
+                                      <MapPin className="h-3 w-3" />
+                                    )}
+                                    Reservado
+                                  </div>
+                                </div>
+                              )
+                            }
+
                             return (
-                              <div
+                              <Button
                                 key={`${timeIndex}-${slot.modality}`}
-                                className="w-full text-xs flex flex-col gap-1 h-auto py-2 px-2 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed"
+                                variant={isSelected ? "default" : "outline"}
+                                size="sm"
+                                className="w-full text-xs flex flex-col gap-1 h-auto py-2"
+                                onClick={() => setSelectedSlot(slotData)}
                               >
                                 <div className="font-medium">{convertedTime}</div>
                                 <div className="flex items-center gap-1 text-xs opacity-75">
@@ -490,41 +523,111 @@ export default function PsychologyApp() {
                                   ) : (
                                     <MapPin className="h-3 w-3" />
                                   )}
-                                  Reservado
+                                  {slot.modality === "online" ? "Online" : "Presencial"}
                                 </div>
-                              </div>
+                              </Button>
                             )
-                          }
-
-                          return (
-                            <Button
-                              key={`${timeIndex}-${slot.modality}`}
-                              variant={isSelected ? "default" : "outline"}
-                              size="sm"
-                              className="w-full text-xs flex flex-col gap-1 h-auto py-2"
-                              onClick={() => setSelectedSlot(slotData)}
-                            >
-                              <div className="font-medium">{convertedTime}</div>
-                              <div className="flex items-center gap-1 text-xs opacity-75">
-                                {slot.modality === "online" ? (
-                                  <Video className="h-3 w-3" />
-                                ) : (
-                                  <MapPin className="h-3 w-3" />
-                                )}
-                                {slot.modality === "online" ? "Online" : "Presencial"}
-                              </div>
-                            </Button>
-                          )
-                        })}
-                        {availableSlots.length === 0 && (
-                          <div className="text-xs text-muted-foreground py-4 bg-muted rounded border-2 border-dashed">
-                            No disponible
-                          </div>
-                        )}
+                          })}
+                          {availableSlots.length === 0 && (
+                            <div className="text-xs text-muted-foreground py-4 bg-muted rounded border-2 border-dashed">
+                              No disponible
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
+
+                {/* Mobile Calendar - Visible only on mobile */}
+                <div className="sm:hidden space-y-4">
+                  {dayNames.map((dayName, index) => {
+                    const availableSlots = selectedPsychologist
+                      ? getAvailableSlotsForDay(selectedPsychologist, index, weekDates[index])
+                      : []
+
+                    if (availableSlots.length === 0) return null
+
+                    return (
+                      <div key={dayName} className="border rounded-lg p-4 bg-card">
+                        <div className="flex items-center justify-between mb-4 pb-2 border-b">
+                          <div>
+                            <div className="font-semibold text-base">{dayName}</div>
+                            <div className="text-sm text-muted-foreground">{formatDate(weekDates[index])}</div>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {availableSlots.length} disponible{availableSlots.length !== 1 ? "s" : ""}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
+                          {availableSlots.map((slot, timeIndex) => {
+                            const convertedTime = convertTimeToUserTimezone(slot.time_slot)
+                            const slotData = {
+                              date: weekDates[index],
+                              originalTime: slot.time_slot,
+                              convertedTime: convertedTime,
+                              day: dayName,
+                              modality: slot.modality,
+                            }
+                            const isSelected =
+                              selectedSlot?.originalTime === slot.time_slot &&
+                              selectedSlot?.date.toDateString() === weekDates[index].toDateString() &&
+                              selectedSlot?.modality === slot.modality
+
+                            if (slot.isBooked) {
+                              return (
+                                <div
+                                  key={`${timeIndex}-${slot.modality}`}
+                                  className="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg cursor-not-allowed"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {slot.modality === "online" ? (
+                                      <Video className="h-5 w-5 text-red-600" />
+                                    ) : (
+                                      <MapPin className="h-5 w-5 text-red-600" />
+                                    )}
+                                    <div>
+                                      <div className="font-medium text-red-600">{convertedTime}</div>
+                                      <div className="text-sm text-red-500">
+                                        {slot.modality === "online" ? "Online" : "Presencial"}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-sm text-red-600 font-medium">Reservado</div>
+                                </div>
+                              )
+                            }
+
+                            return (
+                              <Button
+                                key={`${timeIndex}-${slot.modality}`}
+                                variant={isSelected ? "default" : "outline"}
+                                className="flex items-center justify-between p-4 h-auto text-left"
+                                onClick={() => setSelectedSlot(slotData)}
+                              >
+                                <div className="flex items-center gap-3">
+                                  {slot.modality === "online" ? (
+                                    <Video className="h-5 w-5" />
+                                  ) : (
+                                    <MapPin className="h-5 w-5" />
+                                  )}
+                                  <div>
+                                    <div className="font-medium text-base">{convertedTime}</div>
+                                    <div className="text-sm opacity-75">
+                                      {slot.modality === "online" ? "Sesión Online" : "Sesión Presencial"}
+                                    </div>
+                                  </div>
+                                </div>
+                                {isSelected && <CheckCircle className="h-5 w-5" />}
+                              </Button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
 
               {/* Patient Form */}
@@ -532,7 +635,7 @@ export default function PsychologyApp() {
                 <CardHeader>
                   <CardTitle className="text-lg">Información del Paciente</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4">
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="patientName">Nombre completo *</Label>
                     <Input
@@ -566,7 +669,7 @@ export default function PsychologyApp() {
                     <CardTitle className="text-lg">Resumen de tu Cita</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">Psicólogo:</span>
                         <div className="font-medium">{selectedPsychologist?.name}</div>
@@ -614,19 +717,21 @@ export default function PsychologyApp() {
 
               {/* CTA Button */}
               <Button
-                className="w-full h-12 text-lg"
+                className="w-full h-12 sm:h-12 text-base sm:text-lg"
                 onClick={handleBookAppointment}
                 disabled={!selectedSlot || !patientName || !patientEmail || bookingLoading}
               >
                 {bookingLoading ? (
                   <>
                     <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Agendando tu cita...
+                    <span className="hidden sm:inline">Agendando tu cita...</span>
+                    <span className="sm:hidden">Agendando...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle className="h-5 w-5 mr-2" />
-                    Confirmar Cita
+                    <span className="hidden sm:inline">Confirmar Cita</span>
+                    <span className="sm:hidden">Confirmar</span>
                   </>
                 )}
               </Button>
