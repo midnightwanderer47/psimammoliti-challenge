@@ -2,46 +2,43 @@
 
 ## 1. Instrucciones
 
-Para ejecutar este proyecto, seguí estos pasos:
-
-1.  **Cloná el repositorio:**
+1.  **Clonar el repositorio:**
     ```bash
     git clone <URL_DEL_REPOSITORIO>
     cd psimammoliti-challenge
     ```
 
-2.  **Instalá las dependencias:**
-    Este proyecto usa `npm`. Asegurate de tener Node.js instalado.
+2.  **Instalar dependencias:**
+    Este proyecto usa `npm`. Requiere tener Node instalado.
     ```bash
     npm install
     ```
 
-3.  **Configurá las variables de entorno:**
-    Creá un archivo `.env` en la raíz del proyecto y agregá estas variables:
+3.  **Configurar variables de entorno:**
+    Crear un archivo `.env` en la raíz del proyecto y agregá estas variables:
 
     *   `NEXT_PUBLIC_SUPABASE_URL`: La URL de tu instancia de Supabase.
-    *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: La clave anónima de tu instancia de Supabase.
-
-    Asegurate de que Supabase esté bien configurado con las tablas y datos que necesitás.
+    *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: La clave anónima de la instancia de Supabase.
 
 4.  **Ejecutá la aplicación en modo desarrollo:**
     ```bash
     npm run dev
     ```
 
-    Esto va a iniciar el servidor de desarrollo de Next.js. Abrí tu navegador y andá a `http://localhost:3000` para ver la aplicación funcionando.
+    `http://localhost:3000` para ver la aplicación funcionando.
 
-5.  **Ejecutá los scripts SQL (opcional):**
-    Si necesitás inicializar la base de datos o agregar datos de ejemplo, podés ejecutar los scripts SQL que están en la carpeta `scripts`. Usá la herramienta de línea de comandos de Supabase o cualquier cliente SQL para ejecutar estos scripts en tu base de datos.
+5.  **Ejecutar scripts SQL (opcional):**
+    Usar la herramienta de línea de comandos de Supabase o cualquier cliente SQL para seedear la base de datos.
 
 ## 2. Decisiones técnicas y funcionales
 
-*   **Framework:** Usé Next.js para el frontend por su renderizado del lado del servidor (SSR), enrutamiento fácil y optimización del rendimiento.
-*   **Componentes de la interfaz de usuario:** Usé la biblioteca Shadcn/ui para los componentes de la interfaz de usuario, lo que me da coherencia visual y accesibilidad.
-*   **Base de datos:** Usé Supabase como base de datos y backend como servicio (BaaS) por su facilidad de uso, escalabilidad y capacidades en tiempo real.
-*   **Gestión de estado:** Usé los hooks de React (`useState`, `useEffect`, `useMemo`) para manejar el estado de la aplicación y optimizar el rendimiento.
-*   **Diseño responsivo:** Usé Tailwind CSS para crear un diseño responsivo que se adapte a diferentes tamaños de pantalla, con especial atención a la experiencia móvil.
-*   **Librería de iconos:** Usé `lucide-react` para los iconos.
+* **v0:** No-code tool muy fácil de usar, intuitiva y perfecta para armar prototipos funcionales rápido
+* **Supabase:** Fácil integración con v0 y buen dashboard para visualización de datos
+* **Vercel:** Fácil integración con el resto del stack, fácil despliegue, buen ecosistema
+* **Cursor:** IDE integrado con IA para debuggear y añadir features rápido
+* **GitHub:** Versionado de cambios
+
+El prototipo cumple funcionalmente con los requerimientos. Estaría listo para salir a testear con usuarios y empezar a validar diferentes hipótesis.
 
 ## 3. Detalle: Lo que se hizo y se asumió
 
@@ -106,7 +103,7 @@ flowchart TD
     class S success
 ```
 
-### Flujos que cubrí
+### Flujos cubiertos
 
 **Visualización de psicólogos**
 - Lista completa de psicólogos disponibles en tarjetas responsivas
@@ -142,7 +139,7 @@ flowchart TD
 - Interfaz en español con formatos localizados
 - Navegación por teclado y compatibilidad con lectores de pantalla
 
-**Lo que no incluimos por ahora**
+**Lo que no se incluye en el MVP**
 - No incluye procesamiento de pagos
 - No requiere autenticación de usuario
 - No mantiene historial de reservas
