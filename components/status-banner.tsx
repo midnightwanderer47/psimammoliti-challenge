@@ -1,7 +1,8 @@
 "use client"
 
+import { AlertCircle, CheckCircle, Info, RefreshCw } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { AlertCircle, CheckCircle, RefreshCw, Info } from "lucide-react"
 
 interface StatusBannerProps {
   type: "demo" | "error" | "success" | "info"
@@ -11,49 +12,45 @@ interface StatusBannerProps {
 }
 
 export function StatusBanner({ type, message, onRetry, showRetry = false }: StatusBannerProps) {
-  const styles = {
-    demo: {
-      bg: "bg-muted",
-      border: "border-border",
-      text: "text-foreground",
-      icon: <Info className="h-4 w-4" />,
-    },
-    error: {
-      bg: "bg-destructive/10",
-      border: "border-destructive/20",
-      text: "text-destructive",
-      icon: <AlertCircle className="h-4 w-4" />,
-    },
-    success: {
-      bg: "bg-green-50",
-      border: "border-green-200",
-      text: "text-green-800",
-      icon: <CheckCircle className="h-4 w-4 text-green-600" />,
-    },
-    info: {
-      bg: "bg-muted",
-      border: "border-border",
-      text: "text-foreground",
-      icon: <Info className="h-4 w-4" />,
-    },
+  const getIcon = () => {
+    switch (type) {
+      case "demo":
+        return <Info className="h-4 w-4" />
+      case "error":
+        return <AlertCircle className="h-4 w-4" />
+      case "success":
+        return <CheckCircle className="h-4 w-4" />
+      case "info":
+      default:
+        return <Info className="h-4 w-4" />
+    }
   }
 
-  const style = styles[type]
+  const getVariant = () => {
+    switch (type) {
+      case "error":
+        return "destructive"
+      case "success":
+        return "default"
+      case "demo":
+      case "info":
+      default:
+        return "default"
+    }
+  }
 
   return (
-    <div className={`mb-6 p-4 rounded-lg border ${style.bg} ${style.border}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {style.icon}
-          <p className={`${style.text} text-sm font-medium`}>{message}</p>
-        </div>
+    <Alert variant={getVariant()} className="mb-6">
+      {getIcon()}
+      <AlertDescription className="flex items-center justify-between">
+        <span>{message}</span>
         {showRetry && onRetry && (
-          <Button variant="outline" size="sm" onClick={onRetry} className="ml-4 h-8 px-3 text-xs bg-transparent">
+          <Button variant="outline" size="sm" onClick={onRetry} className="ml-4 h-8 bg-transparent">
             <RefreshCw className="h-3 w-3 mr-1" />
             Reintentar
           </Button>
         )}
-      </div>
-    </div>
+      </AlertDescription>
+    </Alert>
   )
 }

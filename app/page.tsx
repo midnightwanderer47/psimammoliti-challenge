@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video } from "lucide-react"
+import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video, Users } from "lucide-react"
 import { getPsychologists, getSpecialties, bookSession } from "@/lib/database"
 import type { PsychologistWithSpecialties, Specialty } from "@/lib/supabase"
 import { PsychologistCard } from "@/components/psychologist-card"
@@ -37,6 +37,7 @@ export default function PsychologyApp() {
 
   const [error, setError] = useState<string | null>(null)
   const [databaseReady, setDatabaseReady] = useState(false)
+  const [apiStatus, setApiStatus] = useState<string | null>(null)
 
   useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -47,6 +48,8 @@ export default function PsychologyApp() {
   const loadData = async () => {
     setLoading(true)
     setError(null)
+    setApiStatus("Cargando psicólogos con fotos reales...")
+
     try {
       const [psychologistsData, specialtiesData] = await Promise.all([getPsychologists(), getSpecialties()])
       setPsychologists(psychologistsData)
@@ -54,12 +57,18 @@ export default function PsychologyApp() {
 
       if (psychologistsData.length > 0 && psychologistsData[0].id) {
         setDatabaseReady(true)
+        setApiStatus("✅ Psicólogos cargados con fotos reales de Random User API")
+      } else {
+        setApiStatus("⚠️ Usando datos de demostración con fotos reales")
       }
     } catch (error) {
       console.error("Error loading data:", error)
       setError("Error cargando datos. Usando datos de demostración.")
+      setApiStatus("❌ Error en la carga, usando datos de respaldo")
     } finally {
       setLoading(false)
+      // Clear API status after 3 seconds
+      setTimeout(() => setApiStatus(null), 3000)
     }
   }
 
@@ -107,70 +116,69 @@ export default function PsychologyApp() {
 
   const convertTimeToUserTimezone = (time: string) => {
     if (!userTimezone || !time) {
-      console.log("No timezone or time provided:", { userTimezone, time });
-      return time;
+      console.log("No timezone or time provided:", { userTimezone, time })
+      return time
     }
 
     try {
       // Parse the time string (format: "HH:MM")
-      const [hours, minutes] = time.split(":").map(Number);
-      
+      const [hours, minutes] = time.split(":").map(Number)
+
       if (isNaN(hours) || isNaN(minutes)) {
-        console.error("Invalid time format:", time);
-        return time;
+        console.error("Invalid time format:", time)
+        return time
       }
 
       // Create a date object for today
-      const today = new Date();
-      
+      const today = new Date()
+
       // Create a proper UTC date string for today with the given time
-      const dateString = today.toISOString().split("T")[0]; // YYYY-MM-DD format
-      
+      const dateString = today.toISOString().split("T")[0] // YYYY-MM-DD format
+
       // Ensure time is in HH:MM format (remove any seconds if present)
-      const cleanTime = time.split(":").slice(0, 2).join(":");
-      const utcDateTimeString = `${dateString}T${cleanTime}:00.000Z`; // UTC time
-      
+      const cleanTime = time.split(":").slice(0, 2).join(":")
+      const utcDateTimeString = `${dateString}T${cleanTime}:00.000Z` // UTC time
+
       // Debug: log the time conversion
       if (process.env.NODE_ENV === "development") {
         console.log("Time conversion debug:", {
           originalTime: time,
           cleanTime: cleanTime,
-          utcDateTimeString: utcDateTimeString
-        });
+          utcDateTimeString: utcDateTimeString,
+        })
       }
-      
+
       // Create a Date object from the UTC time
-      const utcDate = new Date(utcDateTimeString);
-      
+      const utcDate = new Date(utcDateTimeString)
+
       if (isNaN(utcDate.getTime())) {
-        console.error("Invalid UTC date:", utcDateTimeString);
-        return time;
+        console.error("Invalid UTC date:", utcDateTimeString)
+        return time
       }
-      
+
       // Get the time in user's timezone using a simpler approach
       const userTimeString = utcDate.toLocaleTimeString("en-US", {
         timeZone: userTimezone,
         hour12: false,
         hour: "2-digit",
-        minute: "2-digit"
-      });
-      
+        minute: "2-digit",
+      })
+
       // Validate the result
       if (userTimeString && userTimeString !== "Invalid Date") {
-        return userTimeString;
+        return userTimeString
       } else {
-        console.error("Invalid timezone conversion result:", userTimeString);
-        return time; // Fallback to original time
+        console.error("Invalid timezone conversion result:", userTimeString)
+        return time // Fallback to original time
       }
     } catch (error) {
-      console.error("Error converting timezone:", error);
-      
+      console.error("Error converting timezone:", error)
+
       // Simple fallback: just return the original time if conversion fails
       // This ensures the UI doesn't break even if timezone conversion fails
-      return time;
+      return time
     }
-  };
-
+  }
 
   const handleBookAppointment = async () => {
     if (!selectedPsychologist || !selectedSlot || !patientName || !patientEmail) {
@@ -245,6 +253,7 @@ export default function PsychologyApp() {
             </div>
             <h1 className="text-4xl font-bold mb-2">Psimammoliti Online</h1>
             <p className="text-lg text-muted-foreground">Cargando psicólogos disponibles...</p>
+            {apiStatus && <p className="text-sm text-muted-foreground mt-2">{apiStatus}</p>}
           </div>
           <LoadingSkeleton />
         </div>
@@ -280,6 +289,10 @@ export default function PsychologyApp() {
               <Clock className="h-4 w-4" />
               <span>Disponible 24/7</span>
             </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>Perfiles Reales</span>
+            </div>
           </div>
 
           {userTimezone && (
@@ -291,10 +304,12 @@ export default function PsychologyApp() {
         </div>
 
         {/* Status Banners */}
+        {apiStatus && <StatusBanner type="info" message={apiStatus} />}
+
         {!databaseReady && !loading && (
           <StatusBanner
             type="demo"
-            message="Modo Demo: La base de datos se está configurando. Mostrando datos de demostración."
+            message="Modo Demo: La base de datos se está configurando. Mostrando datos de demostración con fotos reales."
             onRetry={loadData}
             showRetry={true}
           />

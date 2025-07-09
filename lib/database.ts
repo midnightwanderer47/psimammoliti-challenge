@@ -1,57 +1,121 @@
 import { supabase } from "./supabase"
+import { fetchRandomUser } from "./randomuser"
 import type { PsychologistWithSpecialties, AnalyticsData } from "./supabase"
 
-// Fallback data for when database is not ready
-const fallbackPsychologists = [
-  {
-    id: 1,
-    name: "Dra. María González",
-    specialties: [
-      { id: 1, name: "Fobias", description: "Tratamiento de fobias" },
-      { id: 2, name: "Depresión", description: "Tratamiento de depresión" },
-      { id: 3, name: "Ansiedad Social", description: "Tratamiento de ansiedad social" },
-    ],
-    rating: 4.9,
-    experience: "8 años",
-    price: 75,
-    image_url: "/placeholder.svg?height=100&width=100",
-    description: "Especialista en tratamiento de fobias y trastornos de ansiedad.",
-    timezone: "America/Mexico_City",
-    created_at: new Date().toISOString(),
-    available_slots: [
-      { id: 1, psychologist_id: 1, day_of_week: 1, time_slot: "09:00", is_available: true },
-      { id: 2, psychologist_id: 1, day_of_week: 1, time_slot: "10:30", is_available: true },
-      { id: 3, psychologist_id: 1, day_of_week: 2, time_slot: "14:00", is_available: true },
-    ],
-  },
-  {
-    id: 2,
-    name: "Dr. Carlos Mendoza",
-    specialties: [
-      { id: 4, name: "Relaciones Personales", description: "Terapia de relaciones" },
-      { id: 5, name: "Terapia de Pareja", description: "Consejería de pareja" },
-    ],
-    rating: 4.8,
-    experience: "12 años",
-    price: 85,
-    image_url: "/placeholder.svg?height=100&width=100",
-    description: "Especialista en relaciones interpersonales y terapia de pareja.",
-    timezone: "America/Mexico_City",
-    created_at: new Date().toISOString(),
-    available_slots: [
-      { id: 4, psychologist_id: 2, day_of_week: 1, time_slot: "16:00", is_available: true },
-      { id: 5, psychologist_id: 2, day_of_week: 2, time_slot: "09:30", is_available: true },
-    ],
-  },
-]
-
+// Enhanced fallback data with more realistic information
 const fallbackSpecialties = [
   { id: 1, name: "Fobias", description: "Tratamiento de fobias específicas" },
   { id: 2, name: "Depresión", description: "Terapia para depresión" },
   { id: 3, name: "Ansiedad Social", description: "Tratamiento de ansiedad social" },
   { id: 4, name: "Relaciones Personales", description: "Terapia de relaciones" },
   { id: 5, name: "Terapia de Pareja", description: "Consejería de pareja" },
+  { id: 6, name: "Estrés Laboral", description: "Manejo del estrés en el trabajo" },
+  { id: 7, name: "Autoestima", description: "Fortalecimiento de la autoestima" },
+  { id: 8, name: "Duelo", description: "Proceso de duelo y pérdida" },
 ]
+
+// Function to create fallback psychologists with Random User API data
+async function createFallbackPsychologists(): Promise<PsychologistWithSpecialties[]> {
+  const psychologistTemplates = [
+    {
+      id: 1,
+      specialtyIds: [1, 2, 3],
+      rating: 4.9,
+      experience: "8 años",
+      price: 75,
+      description: "Especialista en tratamiento de fobias y trastornos de ansiedad con enfoque cognitivo-conductual.",
+      available_slots: [
+        { id: 1, psychologist_id: 1, day_of_week: 1, time_slot: "09:00", is_available: true },
+        { id: 2, psychologist_id: 1, day_of_week: 1, time_slot: "10:30", is_available: true },
+        { id: 3, psychologist_id: 1, day_of_week: 2, time_slot: "14:00", is_available: true },
+        { id: 4, psychologist_id: 1, day_of_week: 3, time_slot: "16:00", is_available: true },
+      ],
+    },
+    {
+      id: 2,
+      specialtyIds: [4, 5],
+      rating: 4.8,
+      experience: "12 años",
+      price: 85,
+      description: "Especialista en relaciones interpersonales y terapia de pareja con enfoque sistémico.",
+      available_slots: [
+        { id: 5, psychologist_id: 2, day_of_week: 1, time_slot: "16:00", is_available: true },
+        { id: 6, psychologist_id: 2, day_of_week: 2, time_slot: "09:30", is_available: true },
+        { id: 7, psychologist_id: 2, day_of_week: 4, time_slot: "11:00", is_available: true },
+      ],
+    },
+    {
+      id: 3,
+      specialtyIds: [6, 7],
+      rating: 4.7,
+      experience: "6 años",
+      price: 70,
+      description: "Psicóloga especializada en estrés laboral y desarrollo de autoestima en adultos jóvenes.",
+      available_slots: [
+        { id: 8, psychologist_id: 3, day_of_week: 2, time_slot: "15:30", is_available: true },
+        { id: 9, psychologist_id: 3, day_of_week: 3, time_slot: "10:00", is_available: true },
+        { id: 10, psychologist_id: 3, day_of_week: 5, time_slot: "14:30", is_available: true },
+      ],
+    },
+    {
+      id: 4,
+      specialtyIds: [8, 2],
+      rating: 4.9,
+      experience: "15 años",
+      price: 90,
+      description: "Especialista en procesos de duelo y depresión con amplia experiencia clínica.",
+      available_slots: [
+        { id: 11, psychologist_id: 4, day_of_week: 1, time_slot: "11:30", is_available: true },
+        { id: 12, psychologist_id: 4, day_of_week: 3, time_slot: "13:00", is_available: true },
+        { id: 13, psychologist_id: 4, day_of_week: 4, time_slot: "15:00", is_available: true },
+      ],
+    },
+    {
+      id: 5,
+      specialtyIds: [1, 3, 7],
+      rating: 4.6,
+      experience: "10 años",
+      price: 80,
+      description: "Psicólogo especializado en fobias, ansiedad social y fortalecimiento de la autoestima.",
+      available_slots: [
+        { id: 14, psychologist_id: 5, day_of_week: 2, time_slot: "08:30", is_available: true },
+        { id: 15, psychologist_id: 5, day_of_week: 4, time_slot: "17:00", is_available: true },
+        { id: 16, psychologist_id: 5, day_of_week: 5, time_slot: "12:00", is_available: true },
+      ],
+    },
+    {
+      id: 6,
+      specialtyIds: [4, 6],
+      rating: 4.8,
+      experience: "9 años",
+      price: 78,
+      description: "Especialista en relaciones interpersonales y manejo del estrés en entornos laborales.",
+      available_slots: [
+        { id: 17, psychologist_id: 6, day_of_week: 1, time_slot: "13:30", is_available: true },
+        { id: 18, psychologist_id: 6, day_of_week: 3, time_slot: "09:00", is_available: true },
+        { id: 19, psychologist_id: 6, day_of_week: 5, time_slot: "16:30", is_available: true },
+      ],
+    },
+  ]
+
+  // Fetch user data from Random User API for each psychologist
+  const psychologists = await Promise.all(
+    psychologistTemplates.map(async (template, index) => {
+      const userData = await fetchRandomUser(index)
+
+      return {
+        ...template,
+        name: userData.name,
+        image_url: userData.image_url,
+        specialties: template.specialtyIds.map((id) => fallbackSpecialties.find((s) => s.id === id)!),
+        timezone: "America/Mexico_City",
+        created_at: new Date().toISOString(),
+      }
+    }),
+  )
+
+  return psychologists
+}
 
 export async function getPsychologists(): Promise<PsychologistWithSpecialties[]> {
   try {
@@ -74,18 +138,42 @@ export async function getPsychologists(): Promise<PsychologistWithSpecialties[]>
       `)
 
     if (error) {
-      console.warn("Database not ready, using fallback data:", error.message)
-      return fallbackPsychologists
+      console.warn("Database not ready, using fallback data with Random User API:", error.message)
+      return await createFallbackPsychologists()
     }
 
-    return psychologists.map((p) => ({
-      ...p,
-      specialties: p.psychologist_specialties.map((ps) => ps.specialties),
-      available_slots: p.available_slots,
-    }))
+    // If we have database data, enhance it with Random User API data
+    if (psychologists && psychologists.length > 0) {
+      const enhancedPsychologists = await Promise.all(
+        psychologists.map(async (p, index) => {
+          // Try to get user data from Random User API, but keep original if it fails
+          try {
+            const userData = await fetchRandomUser(index)
+            return {
+              ...p,
+              name: userData.name,
+              image_url: userData.image_url,
+              specialties: p.psychologist_specialties.map((ps: any) => ps.specialties),
+              available_slots: p.available_slots,
+            }
+          } catch (error) {
+            console.warn(`Failed to enhance psychologist ${index} with Random User data:`, error)
+            return {
+              ...p,
+              specialties: p.psychologist_specialties.map((ps: any) => ps.specialties),
+              available_slots: p.available_slots,
+            }
+          }
+        }),
+      )
+
+      return enhancedPsychologists
+    }
+
+    return await createFallbackPsychologists()
   } catch (error) {
-    console.warn("Error fetching psychologists, using fallback data:", error)
-    return fallbackPsychologists
+    console.warn("Error fetching psychologists, using fallback data with Random User API:", error)
+    return await createFallbackPsychologists()
   }
 }
 
