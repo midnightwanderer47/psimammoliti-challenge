@@ -1,5 +1,10 @@
 # Documento Funcional - Psimammoliti Online
 
+## Descripción General
+
+Psimammoliti Online es una plataforma web para la reserva de sesiones de psicología que permite a los usuarios encontrar y agendar citas con psicólogos profesionales, tanto en modalidad online como presencial.
+
+
 ## Flowchart
 ```mermaid
 flowchart TD
@@ -51,10 +56,6 @@ flowchart TD
     class C,G,L decision
     class S success
 ```
-
-## Descripción General
-
-Psimammoliti Online es una plataforma web para la reserva de sesiones de psicología que permite a los usuarios encontrar y agendar citas con psicólogos profesionales, tanto en modalidad online como presencial.
 
 ## Funcionalidades Principales
 
