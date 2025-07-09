@@ -35,7 +35,7 @@
 
     `http://localhost:3000` para ver la aplicación funcionando
 
-5.  Ejecutar scripts SQL (opcional):
+5.  Ejecutar scripts SQL (opcional)
 
     Usar la herramienta de línea de comandos de Supabase o cualquier cliente SQL para generar datos reales en la base de datos.
 
