@@ -4,7 +4,7 @@
 
 ### Deployment
 
-- URL: https://psimammoliti-challenge.francosbenitez.com/
+- Preview URL: https://psimammoliti-challenge.francosbenitez.com/
 
 ### Levantar localmente
 
