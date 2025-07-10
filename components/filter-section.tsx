@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Filter, Search, X, Video, MapPin, AlertTriangle, Clock } from "lucide-react"
+import { Filter, Search, X, Video, MapPin } from "lucide-react"
 import type { Specialty } from "@/lib/supabase"
 
 interface FilterSectionProps {
@@ -19,8 +19,6 @@ interface FilterSectionProps {
   onSearchChange: (query: string) => void
   selectedModality: string
   onModalityChange: (modality: string) => void
-  selectedAvailability: string
-  onAvailabilityChange: (availability: string) => void
   resultCount: number
 }
 
@@ -32,8 +30,6 @@ export function FilterSection({
   onSearchChange,
   selectedModality,
   onModalityChange,
-  selectedAvailability,
-  onAvailabilityChange,
   resultCount,
 }: FilterSectionProps) {
   return (
@@ -50,7 +46,7 @@ export function FilterSection({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-3">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -105,28 +101,6 @@ export function FilterSection({
               </SelectItem>
             </SelectContent>
           </Select>
-
-          {/* Availability Filter */}
-          <Select value={selectedAvailability} onValueChange={onAvailabilityChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Disponibilidad" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Todas">Todas las disponibilidades</SelectItem>
-              <SelectItem value="poca">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" />
-                  Poca disponibilidad
-                </div>
-              </SelectItem>
-              <SelectItem value="alta">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Alta disponibilidad
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Active Filters */}
@@ -155,21 +129,6 @@ export function FilterSection({
             <Badge variant="secondary">
               "{searchQuery}"
               <button onClick={() => onSearchChange("")} className="ml-1 hover:text-foreground">
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          )}
-          {selectedAvailability !== "Todas" && (
-            <Badge variant="secondary">
-              <div className="flex items-center gap-1">
-                {selectedAvailability === "poca" ? (
-                  <AlertTriangle className="h-3 w-3" />
-                ) : (
-                  <Clock className="h-3 w-3" />
-                )}
-                {selectedAvailability === "poca" ? "Poca disponibilidad" : "Alta disponibilidad"}
-              </div>
-              <button onClick={() => onAvailabilityChange("Todas")} className="ml-1 hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
