@@ -139,12 +139,6 @@ flowchart TD
     - Información específica según modalidad elegida
     - Instrucciones claras para el día de la sesión
 
-6. Características técnicas
-    - Diseño completamente responsivo (desktop, tablet, móvil)
-    - Interfaz en español con formatos localizados
-    - Navegación por teclado y compatibilidad con lectores de pantalla
-
-
 ## 4. Consultas SQL
 
 1. ¿Qué temática es más consultada?
