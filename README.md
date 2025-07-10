@@ -39,6 +39,20 @@
 
     Usar la herramienta de línea de comandos de Supabase o cualquier cliente SQL para generar datos reales en la base de datos.
 
+### Ejecutar tests
+
+Para ejecutar los tests de Playwright localmente:
+
+```bash
+# Instalar dependencias de Playwright (solo la primera vez)
+npx playwright install
+
+# Ejecutar tests en navegadores específicos
+npx playwright test --project=chromium
+npx playwright test --project=firefox
+npx playwright test --project=webkit
+```
+
 ## 2. Decisiones técnicas, funcionales, lo que se hizo y se asumió
 
 Se armó un prototipo inicial con las siguientes tecnologías:
