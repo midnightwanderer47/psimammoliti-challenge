@@ -1,5 +1,3 @@
--- ¿Qué temática es más consultada?
-
 SELECT 
     s.name as tematica,
     COUNT(ses.id) as total_sesiones,

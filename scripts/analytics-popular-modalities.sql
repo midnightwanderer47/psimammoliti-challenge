@@ -1,4 +1,3 @@
--- ¿Qué modalidad es más usada?
 
 SELECT 
     modality as modalidad,

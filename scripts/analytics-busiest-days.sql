@@ -1,5 +1,3 @@
--- ¿Qué día tiene más sesiones?
-
 SELECT 
     CASE 
         WHEN EXTRACT(DOW FROM session_date) = 0 THEN 'Domingo'
