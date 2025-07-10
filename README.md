@@ -1,12 +1,12 @@
 # 🤺 Psimammoliti Challenge
 
-## 1. Instrucciones
+### 1. Instrucciones
 
-### Deployment
+#### Deployment
 
 - Preview URL: https://psimammoliti-challenge.francosbenitez.com/
 
-### Levantar localmente
+#### Levantar localmente
 
 1.  Clonar repo
     ```bash
@@ -39,7 +39,7 @@
 
     Usar la herramienta de línea de comandos de Supabase o cualquier cliente SQL para generar datos reales en la base de datos.
 
-### Ejecutar tests
+#### Ejecutar tests
 
 Para ejecutar los tests de Playwright localmente:
 
@@ -53,7 +53,7 @@ npx playwright test --project=firefox
 npx playwright test --project=webkit
 ```
 
-## 2. Decisiones técnicas, funcionales, lo que se hizo y se asumió
+### 2. Decisiones técnicas, funcionales, lo que se hizo y se asumió
 
 Se armó un prototipo inicial con las siguientes tecnologías:
   * **v0:** No-code tool muy fácil de usar, intuitiva y perfecta para armar prototipos funcionales rápido
@@ -68,9 +68,9 @@ Se asumió:
 1. La necesidad de un MVP que sirva para testear algunas ideas iniciales
 2. Saber que como MVP, va a estar sujeto a cambio con base en la interacción el usuario, por lo cual toda la infrastructura debe ser fácilmente iterable (ej., no debe estar sobre una arquitectura demasiado compleja de luego modificar)
 
-## 3. Documento funcional
+### 3. Documento funcional
 
-### 1. Flowchart
+#### 1. Flowchart
 ```mermaid
 flowchart TD
     A[Usuario accede a la plataforma] --> B[Ver lista de psicólogos]
@@ -122,7 +122,7 @@ flowchart TD
     class S success
 ```
 
-### 2. Flujos cubiertos
+#### 2. Flujos cubiertos
 
 1. Visualización de psicólogos
     - Lista completa de psicólogos disponibles en tarjetas responsivas
@@ -154,7 +154,7 @@ flowchart TD
     - Información específica según modalidad elegida
     - Instrucciones claras para el día de la sesión
 
-## 4. Consultas SQL
+### 4. Consultas SQL
 
 1. ¿Qué temática es más consultada?
 
@@ -224,3 +224,7 @@ ORDER BY total_sesiones DESC;
 ```
 
 ![Analytics - Popular Modalities](analytics-popular-modalities.png)
+
+## Conclusión
+
+El prototipo apuntó a cumplir con los requerimientos funcionales básicos para un MVP, implementando un sistema de visualización, filtrado, reserva y gestión de horarios. La arquitectura permite iteraciones rápidas y un despliegue sencillo. El stack facilitó tanto el desarrollo inicial como las futuras mejoras y se adaptó al cambio sin mayores inconvenientes. Con psicólogos reales, el desarrollo está listo para salir a validación con usuarios reales, lo cual habilita empezar a testear hipótesis de negocio.
