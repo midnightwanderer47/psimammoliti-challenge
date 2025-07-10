@@ -1,4 +1,3 @@
-
 SELECT 
     modality as modalidad,
     COUNT(*) as total_sesiones,

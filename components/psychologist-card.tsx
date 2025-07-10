@@ -3,18 +3,79 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Star, MapPin, Clock, Award, Video } from "lucide-react"
+import { Calendar, Star, MapPin, Clock, Award, Video, AlertTriangle } from "lucide-react"
 import Image from "next/image"
 import type { PsychologistWithSpecialties } from "@/lib/supabase"
 
 interface PsychologistCardProps {
   psychologist: PsychologistWithSpecialties
   onViewAvailability: (psychologist: PsychologistWithSpecialties) => void
+  bookedSessions?: any[]
+  userTimezone?: string
 }
 
-export function PsychologistCard({ psychologist, onViewAvailability }: PsychologistCardProps) {
+export function PsychologistCard({
+  psychologist,
+  onViewAvailability,
+  bookedSessions = [],
+  userTimezone = "",
+}: PsychologistCardProps) {
   // Get unique modalities available for this psychologist
   const availableModalities = [...new Set(psychologist.available_slots.map((slot) => slot.modality))]
+
+  // Helper function to check if slot is booked
+  const isSlotBooked = (psychologistId: number, date: Date, timeSlot: string, modality: string) => {
+    const dateString = date.toISOString().split("T")[0]
+    return bookedSessions.some(
+      (session) =>
+        session.psychologist_id === psychologistId &&
+        session.session_date === dateString &&
+        session.session_time === timeSlot &&
+        session.modality === modality &&
+        session.status === "scheduled",
+    )
+  }
+
+  // Helper function to check if slot is in past
+  const isSlotInPast = (date: Date, timeSlot: string, userTimezone: string) => {
+    if (!userTimezone) return false
+
+    try {
+      const [hours, minutes] = timeSlot.split(":").map(Number)
+      if (isNaN(hours) || isNaN(minutes)) return false
+
+      const slotDateTime = new Date(date)
+      slotDateTime.setHours(hours, minutes, 0, 0)
+
+      return slotDateTime <= new Date()
+    } catch (error) {
+      return false
+    }
+  }
+
+  // Calculate total available slots (excluding past slots and booked slots)
+  const totalAvailableSlots = psychologist.available_slots.filter((slot) => {
+    if (!slot.is_available) return false
+
+    // Calculate the date for this slot's day of the week for current week
+    const today = new Date()
+    const currentDay = today.getDay()
+    const monday = new Date(today)
+    monday.setDate(today.getDate() - currentDay + 1)
+
+    const slotDate = new Date(monday)
+    slotDate.setDate(monday.getDate() + slot.day_of_week)
+
+    // Check if slot is in past
+    if (isSlotInPast(slotDate, slot.time_slot, userTimezone)) return false
+
+    // Check if slot is booked
+    if (isSlotBooked(psychologist.id, slotDate, slot.time_slot, slot.modality)) return false
+
+    return true
+  }).length
+
+  const hasLowAvailability = totalAvailableSlots <= 3 // Consider 3 or fewer slots as low availability
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
@@ -101,9 +162,22 @@ export function PsychologistCard({ psychologist, onViewAvailability }: Psycholog
         </div>
 
         {/* Availability indicator */}
-        <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 p-2 rounded-lg">
-          <Clock className="h-3 w-3" />
-          <span>Disponible esta semana</span>
+        <div
+          className={`flex items-center gap-2 text-xs p-2 rounded-lg ${
+            hasLowAvailability ? "text-orange-700 bg-orange-50 border border-orange-200" : "text-green-700 bg-green-50"
+          }`}
+        >
+          {hasLowAvailability ? (
+            <>
+              <AlertTriangle className="h-3 w-3" />
+              <span>Poca disponibilidad ({totalAvailableSlots} horarios)</span>
+            </>
+          ) : (
+            <>
+              <Clock className="h-3 w-3" />
+              <span>Disponible esta semana ({totalAvailableSlots} horarios)</span>
+            </>
+          )}
         </div>
 
         {/* Price and CTA */}

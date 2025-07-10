@@ -32,6 +32,7 @@ export default function PsychologyApp() {
   const [loading, setLoading] = useState(true)
   const [bookingLoading, setBookingLoading] = useState(false)
   const [bookedSessions, setBookedSessions] = useState<Session[]>([])
+  const [selectedAvailability, setSelectedAvailability] = useState("Todas")
 
   // Formulario de paciente
   const [patientName, setPatientName] = useState("")
@@ -86,6 +87,42 @@ export default function PsychologyApp() {
       )
     }
 
+    // Filter by availability
+    if (selectedAvailability !== "Todas") {
+      filtered = filtered.filter((p) => {
+        // Calculate available slots excluding past ones and booked ones
+        const availableSlots = p.available_slots.filter((slot) => {
+          if (!slot.is_available) return false
+
+          // Calculate the date for this slot's day of the week for current week
+          const today = new Date()
+          const currentDay = today.getDay()
+          const monday = new Date(today)
+          monday.setDate(today.getDate() - currentDay + 1)
+
+          const slotDate = new Date(monday)
+          slotDate.setDate(monday.getDate() + slot.day_of_week)
+
+          // Use the existing isSlotInPast function
+          if (isSlotInPast(slotDate, slot.time_slot, userTimezone)) return false
+
+          // Use the existing isSlotBooked function
+          if (isSlotBooked(p.id, slotDate, slot.time_slot, slot.modality)) return false
+
+          return true
+        })
+
+        const totalAvailableSlots = availableSlots.length
+
+        if (selectedAvailability === "poca") {
+          return totalAvailableSlots <= 3
+        } else if (selectedAvailability === "alta") {
+          return totalAvailableSlots > 3
+        }
+        return true
+      })
+    }
+
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
@@ -97,12 +134,52 @@ export default function PsychologyApp() {
       )
     }
 
+    // Sort by availability (psychologists with fewer slots first when showing low availability)
+    if (selectedAvailability === "poca") {
+      filtered.sort((a, b) => {
+        const getAvailableSlots = (psychologist) => {
+          const today = new Date()
+          const currentDay = today.getDay()
+          const monday = new Date(today)
+          monday.setDate(today.getDate() - currentDay + 1)
+
+          return psychologist.available_slots.filter((slot) => {
+            if (!slot.is_available) return false
+
+            const slotDate = new Date(monday)
+            slotDate.setDate(monday.getDate() + slot.day_of_week)
+
+            // Check if slot is in past
+            if (isSlotInPast(slotDate, slot.time_slot, userTimezone)) return false
+
+            // Check if slot is booked
+            if (isSlotBooked(psychologist.id, slotDate, slot.time_slot, slot.modality)) return false
+
+            return true
+          }).length
+        }
+
+        const aSlots = getAvailableSlots(a)
+        const bSlots = getAvailableSlots(b)
+        return aSlots - bSlots
+      })
+    }
+
     return filtered
-  }, [psychologists, selectedSpecialty, selectedModality, searchQuery])
+  }, [
+    psychologists,
+    selectedSpecialty,
+    selectedModality,
+    selectedAvailability,
+    searchQuery,
+    bookedSessions,
+    userTimezone,
+  ])
 
   const resetFilters = () => {
     setSelectedSpecialty("Todas")
     setSelectedModality("Todas")
+    setSelectedAvailability("Todas")
     setSearchQuery("")
   }
 
@@ -400,6 +477,8 @@ export default function PsychologyApp() {
           onSearchChange={setSearchQuery}
           selectedModality={selectedModality}
           onModalityChange={setSelectedModality}
+          selectedAvailability={selectedAvailability}
+          onAvailabilityChange={setSelectedAvailability}
           resultCount={filteredPsychologists.length}
         />
 
@@ -411,6 +490,8 @@ export default function PsychologyApp() {
                 key={psychologist.id}
                 psychologist={psychologist}
                 onViewAvailability={setSelectedPsychologist}
+                bookedSessions={bookedSessions}
+                userTimezone={userTimezone}
               />
             ))}
           </div>

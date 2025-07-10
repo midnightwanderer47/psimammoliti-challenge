@@ -9,17 +9,17 @@
 ### Levantar localmente
 
 1.  Clonar repo
-    ```bash
+    \`\`\`bash
     git clone <URL_DEL_REPOSITORIO>
     cd psimammoliti-challenge
-    ```
+    \`\`\`
 
 2.  Instalar dependencias
 
     Este proyecto usa `npm`. Requiere tener Node instalado
-    ```bash
+    \`\`\`bash
     npm install
-    ```
+    \`\`\`
 
 3.  Configurar variables de entorno
 
@@ -29,9 +29,9 @@
     *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: La clave anónima de la instancia de Supabase
 
 4.  Ejecutar app
-    ```bash
+    \`\`\`bash
     npm run dev
-    ```
+    \`\`\`
 
     `http://localhost:3000` para ver la aplicación funcionando
 
@@ -57,7 +57,7 @@ Se asumió:
 ## 3. Documento funcional
 
 ### 1. Flowchart
-```mermaid
+\`\`\`mermaid
 flowchart TD
     A[Usuario accede a la plataforma] --> B[Ver lista de psicólogos]
     
@@ -106,7 +106,7 @@ flowchart TD
     class B,D1,D2,D3,F,J,K,M,P,Q process
     class C,G,L decision
     class S success
-```
+\`\`\`
 
 ### 2. Flujos cubiertos
 
@@ -143,7 +143,7 @@ flowchart TD
 
 1. ¿Qué temática es más consultada?
 
-```sql
+\`\`\`sql
 SELECT 
     s.name as tematica,
     COUNT(ses.id) as total_sesiones,
@@ -159,14 +159,14 @@ JOIN sessions ses ON s.id = ses.specialty_id
 WHERE ses.status IN ('completed', 'scheduled')
 GROUP BY s.id, s.name
 ORDER BY total_sesiones DESC;
-````
+\`\`\``
 
 ![Analytics - Most Consulted Topics](analytics-most-consulted-topics.png)
 
 
 2. ¿Qué día tiene más sesiones?
 
-```sql
+\`\`\`sql
 SELECT 
     CASE 
         WHEN EXTRACT(DOW FROM session_date) = 0 THEN 'Domingo'
@@ -189,13 +189,13 @@ WHERE status IN ('completed', 'scheduled')
 GROUP BY EXTRACT(DOW FROM session_date)
 ORDER BY total_sesiones DESC;
 
-```
+\`\`\`
 
 ![Analytics - Busiest Days](analytics-busiest-days.png)
 
 3. ¿Qué modalidad es más usada?
 
-```sql
+\`\`\`sql
 SELECT 
     modality as modalidad,
     COUNT(*) as total_sesiones,
@@ -207,6 +207,6 @@ FROM sessions
 WHERE status IN ('completed', 'scheduled')
 GROUP BY modality
 ORDER BY total_sesiones DESC;
-```
+\`\`\`
 
 ![Analytics - Popular Modalities](analytics-popular-modalities.png)
