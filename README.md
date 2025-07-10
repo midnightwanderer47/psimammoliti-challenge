@@ -227,4 +227,4 @@ ORDER BY total_sesiones DESC;
 
 ## Conclusión
 
-El prototipo apuntó a cumplir con los requerimientos funcionales básicos para un MVP, implementando un sistema de visualización, filtrado, reserva y gestión de horarios. La arquitectura permite iteraciones rápidas y un despliegue sencillo. El stack facilitó tanto el desarrollo inicial como las futuras mejoras y se adaptó al cambio sin mayores inconvenientes. Con psicólogos reales, el desarrollo está listo para salir a validación con usuarios.
+El prototipo apuntó a cumplir con los requerimientos funcionales básicos para un MVP, implementando un sistema de visualización, filtrado, reserva y gestión de horarios. La arquitectura permite iteraciones rápidas y un despliegue sencillo. El stack facilitó tanto el desarrollo inicial como las futuras mejoras y se adaptó al cambio sin mayores inconvenientes.
