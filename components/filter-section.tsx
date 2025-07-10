@@ -55,6 +55,7 @@ export function FilterSection({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-10"
+              name="search"
             />
             {searchQuery && (
               <button
@@ -68,7 +69,7 @@ export function FilterSection({
 
           {/* Specialty Filter */}
           <Select value={selectedSpecialty} onValueChange={onSpecialtyChange}>
-            <SelectTrigger>
+            <SelectTrigger name="specialty">
               <SelectValue placeholder="Selecciona una especialidad" />
             </SelectTrigger>
             <SelectContent>
@@ -82,7 +83,7 @@ export function FilterSection({
 
           {/* Modality Filter */}
           <Select value={selectedModality} onValueChange={onModalityChange}>
-            <SelectTrigger>
+            <SelectTrigger name="modality">
               <SelectValue placeholder="Modalidad de sesión" />
             </SelectTrigger>
             <SelectContent>
@@ -107,7 +108,7 @@ export function FilterSection({
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm text-muted-foreground">Filtros activos:</span>
           {selectedSpecialty !== "Todas" && (
-            <Badge variant="secondary">
+            <Badge data-testid="active-filter" variant="secondary">
               {selectedSpecialty}
               <button onClick={() => onSpecialtyChange("Todas")} className="ml-1 hover:text-foreground">
                 <X className="h-3 w-3" />
@@ -115,7 +116,7 @@ export function FilterSection({
             </Badge>
           )}
           {selectedModality !== "Todas" && (
-            <Badge variant="secondary">
+            <Badge data-testid="active-filter" variant="secondary">
               <div className="flex items-center gap-1">
                 {selectedModality === "online" ? <Video className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
                 {selectedModality === "online" ? "Online" : "Presencial"}
@@ -126,14 +127,14 @@ export function FilterSection({
             </Badge>
           )}
           {searchQuery && (
-            <Badge variant="secondary">
+            <Badge data-testid="active-filter" variant="secondary">
               "{searchQuery}"
               <button onClick={() => onSearchChange("")} className="ml-1 hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
           )}
-          <span className="text-sm text-muted-foreground ml-auto">
+          <span data-testid="results-count" className="text-sm text-muted-foreground ml-auto">
             {resultCount} psicólogo{resultCount !== 1 ? "s" : ""} encontrado{resultCount !== 1 ? "s" : ""}
           </span>
         </div>

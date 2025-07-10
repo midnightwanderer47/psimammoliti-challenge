@@ -114,6 +114,7 @@ flowchart TD
     - Lista completa de psicólogos disponibles en tarjetas responsivas
     - Información detallada: nombre, foto, experiencia, calificación, especialidades, descripción, precio y modalidades
     - Indicadores de disponibilidad en cada tarjeta
+    - Mostrar psicólogos con poca disponibilidad
 
 2. Sistema de filtros y búsqueda
     - Búsqueda en tiempo real por nombre o especialidad

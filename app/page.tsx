@@ -373,7 +373,7 @@ export default function PsychologyApp() {
           </div>
 
           {userTimezone && (
-            <div className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground">
+            <div data-testid="timezone-display" className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
               <span>Horarios en tu zona: {userTimezone}</span>
             </div>
@@ -423,7 +423,7 @@ export default function PsychologyApp() {
 
         {/* Booking Modal */}
         <Dialog open={!!selectedPsychologist} onOpenChange={() => setSelectedPsychologist(null)}>
-          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto sm:max-w-5xl w-[95vw] sm:w-auto">
+          <DialogContent data-testid="calendar" className="max-w-5xl max-h-[90vh] overflow-y-auto sm:max-w-5xl w-[95vw] sm:w-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl">Agendar Sesión - {selectedPsychologist?.name}</DialogTitle>
               <DialogDescription className="text-lg">
@@ -432,6 +432,11 @@ export default function PsychologyApp() {
             </DialogHeader>
 
             <div className="space-y-6">
+              {/* User Timezone Display */}
+              <div data-testid="user-timezone" className="text-sm text-muted-foreground bg-muted p-2 rounded-lg">
+                Horarios mostrados en: {userTimezone}
+              </div>
+
               {/* Week Navigation */}
               <div className="flex items-center justify-between p-3 sm:p-4 bg-muted rounded-lg gap-2">
                 <Button
@@ -443,7 +448,7 @@ export default function PsychologyApp() {
                   <ChevronLeft className="h-4 w-4 sm:mr-1" />
                   <span className="hidden sm:inline">Anterior</span>
                 </Button>
-                <div className="text-center min-w-0 flex-1">
+                <div data-testid="week-display" className="text-center min-w-0 flex-1">
                   <div className="font-semibold text-sm sm:text-lg truncate">
                     {weekDates[0].toLocaleDateString("es-ES", { month: "long", year: "numeric" })}
                   </div>
@@ -496,7 +501,9 @@ export default function PsychologyApp() {
                               return (
                                 <div
                                   key={`${timeIndex}-${slot.modality}`}
-                                  className="w-full text-xs flex flex-col gap-1 h-auto py-2 px-2 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed"
+                                  data-testid="time-slot"
+                                  data-modality={slot.modality}
+                                  className="w-full text-xs flex flex-col gap-1 h-auto py-2 px-2 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed booked"
                                 >
                                   <div className="font-medium">{convertedTime}</div>
                                   <div className="flex items-center gap-1 text-xs opacity-75">
@@ -514,9 +521,11 @@ export default function PsychologyApp() {
                             return (
                               <Button
                                 key={`${timeIndex}-${slot.modality}`}
+                                data-testid="time-slot"
+                                data-modality={slot.modality}
                                 variant={isSelected ? "default" : "outline"}
                                 size="sm"
-                                className="w-full text-xs flex flex-col gap-1 h-auto py-2"
+                                className={`w-full text-xs flex flex-col gap-1 h-auto py-2 ${isSelected ? 'selected' : 'available'}`}
                                 onClick={() => setSelectedSlot(slotData)}
                               >
                                 <div className="font-medium">{convertedTime}</div>
@@ -643,6 +652,7 @@ export default function PsychologyApp() {
                     <Label htmlFor="patientName">Nombre completo *</Label>
                     <Input
                       id="patientName"
+                      name="patientName"
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
                       placeholder="Tu nombre completo"
@@ -654,6 +664,7 @@ export default function PsychologyApp() {
                     <Label htmlFor="patientEmail">Correo electrónico *</Label>
                     <Input
                       id="patientEmail"
+                      name="patientEmail"
                       type="email"
                       value={patientEmail}
                       onChange={(e) => setPatientEmail(e.target.value)}
@@ -667,7 +678,7 @@ export default function PsychologyApp() {
 
               {/* Booking Summary */}
               {selectedSlot && (
-                <Card>
+                <Card data-testid="booking-summary">
                   <CardHeader>
                     <CardTitle className="text-lg">Resumen de tu Cita</CardTitle>
                   </CardHeader>
@@ -700,7 +711,7 @@ export default function PsychologyApp() {
                       </div>
                       <div>
                         <span className="text-muted-foreground">Modalidad:</span>
-                        <div className="font-medium flex items-center gap-2">
+                        <div data-testid="modality-info" className="font-medium flex items-center gap-2">
                           {selectedSlot.modality === "online" ? (
                             <Video className="h-4 w-4" />
                           ) : (
@@ -716,6 +727,13 @@ export default function PsychologyApp() {
                     </div>
                   </CardContent>
                 </Card>
+              )}
+
+              {/* Validation Error */}
+              {(!patientName || !patientEmail) && (
+                <div data-testid="validation-error" className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+                  Por favor completa todos los campos requeridos
+                </div>
               )}
 
               {/* CTA Button */}
@@ -744,7 +762,7 @@ export default function PsychologyApp() {
 
         {/* Confirmation Modal */}
         <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-          <DialogContent className="max-w-lg">
+          <DialogContent data-testid="confirmation-modal" className="max-w-lg">
             <DialogHeader>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -795,7 +813,7 @@ export default function PsychologyApp() {
                   </div>
                 </div>
 
-                <div className="text-sm text-muted-foreground bg-muted p-4 rounded-lg">
+                <div data-testid="session-instructions" className="text-sm text-muted-foreground bg-muted p-4 rounded-lg">
                   <p className="mb-2">
                     <strong>Próximos pasos:</strong>
                   </p>

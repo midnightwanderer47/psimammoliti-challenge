@@ -78,7 +78,7 @@ export function PsychologistCard({
   const hasLowAvailability = totalAvailableSlots <= 3 // Consider 3 or fewer slots as low availability
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <Card data-testid="psychologist-card" className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
       <CardHeader className="text-center pb-4">
         <div className="relative mx-auto mb-4">
           <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-border shadow-sm">
@@ -97,7 +97,7 @@ export function PsychologistCard({
 
         <CardTitle className="text-xl font-semibold mb-1">{psychologist.name}</CardTitle>
 
-        <CardDescription className="flex items-center justify-center gap-1 text-sm">
+        <CardDescription data-testid="experience" className="flex items-center justify-center gap-1 text-sm">
           <Award className="h-3 w-3" />
           {psychologist.experience} de experiencia
         </CardDescription>
@@ -105,7 +105,7 @@ export function PsychologistCard({
 
       <CardContent className="space-y-4 pt-0">
         {/* Rating */}
-        <div className="flex items-center justify-center gap-2 p-2 bg-muted rounded-lg">
+        <div data-testid="rating" className="flex items-center justify-center gap-2 p-2 bg-muted rounded-lg">
           <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
               <Star
@@ -121,7 +121,7 @@ export function PsychologistCard({
         </div>
 
         {/* Specialties */}
-        <div>
+        <div data-testid="specialties">
           <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
             <MapPin className="h-4 w-4" />
             Especialidades
@@ -141,10 +141,10 @@ export function PsychologistCard({
         </div>
 
         {/* Description */}
-        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{psychologist.description}</p>
+        <p data-testid="description" className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{psychologist.description}</p>
 
         {/* Available Modalities */}
-        <div>
+        <div data-testid="modalities">
           <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
             <Clock className="h-4 w-4" />
             Modalidades disponibles
@@ -163,6 +163,7 @@ export function PsychologistCard({
 
         {/* Availability indicator */}
         <div
+         data-testid="availability-indicator"
           className={`flex items-center gap-2 text-xs p-2 rounded-lg ${
             hasLowAvailability ? "text-orange-700 bg-orange-50 border border-orange-200" : "text-green-700 bg-green-50"
           }`}
@@ -184,7 +185,7 @@ export function PsychologistCard({
         <div className="pt-2 border-t">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div className="text-2xl font-bold">${psychologist.price}</div>
+              <div data-testid="price" className="text-2xl font-bold">${psychologist.price}</div>
               <div className="text-xs text-muted-foreground">por sesión de 50 min</div>
             </div>
             <div className="text-right">
