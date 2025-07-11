@@ -606,7 +606,7 @@ export default function PsychologyApp() {
                       </div>
                       <div>
                         <span className="text-muted-foreground">Hora:</span>
-                        <div className="font-medium">{selectedSlot.convertedTime}</div>
+                        <div className="font-medium">{selectedSlot.time_slot}</div>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Modalidad:</span>
