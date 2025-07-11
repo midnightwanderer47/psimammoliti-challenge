@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video, MapPin } from "lucide-react"
+import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video, MapPin, ArrowLeft } from "lucide-react"
 import { getPsychologists, getSpecialties, bookSession, getBookedSessions } from "@/lib/database"
 import type { PsychologistWithSpecialties, Specialty, Session } from "@/lib/supabase"
 import { PsychologistCard } from "@/components/psychologist-card"
@@ -22,6 +22,7 @@ export default function PsychologyApp() {
   const [specialties, setSpecialties] = useState<Specialty[]>([])
   const [selectedSpecialty, setSelectedSpecialty] = useState("Todas")
   const [selectedModality, setSelectedModality] = useState("Todas")
+  const [selectedAvailability, setSelectedAvailability] = useState("Todas")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedPsychologist, setSelectedPsychologist] = useState<PsychologistWithSpecialties | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<any>(null)
@@ -32,9 +33,9 @@ export default function PsychologyApp() {
   const [loading, setLoading] = useState(true)
   const [bookingLoading, setBookingLoading] = useState(false)
   const [bookedSessions, setBookedSessions] = useState<Session[]>([])
-  const [selectedAvailability, setSelectedAvailability] = useState("Todas")
+  const [isQuickBooking, setIsQuickBooking] = useState(false)
 
-  // Formulario de paciente
+  // Formulario de paciente - Load from localStorage
   const [patientName, setPatientName] = useState("")
   const [patientEmail, setPatientEmail] = useState("")
 
@@ -44,8 +45,24 @@ export default function PsychologyApp() {
   useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     setUserTimezone(timezone)
+
+    // Load saved patient data
+    const savedName = localStorage.getItem("patient_name")
+    const savedEmail = localStorage.getItem("patient_email")
+    if (savedName) setPatientName(savedName)
+    if (savedEmail) setPatientEmail(savedEmail)
+
     loadData()
   }, [])
+
+  // Save patient data to localStorage
+  useEffect(() => {
+    if (patientName) localStorage.setItem("patient_name", patientName)
+  }, [patientName])
+
+  useEffect(() => {
+    if (patientEmail) localStorage.setItem("patient_email", patientEmail)
+  }, [patientEmail])
 
   const loadData = async () => {
     setLoading(true)
@@ -87,6 +104,47 @@ export default function PsychologyApp() {
       )
     }
 
+    // Filter by immediate availability
+    if (selectedAvailability === "inmediata") {
+      filtered = filtered.filter((p) => {
+        const today = new Date()
+        const tomorrow = new Date(today)
+        tomorrow.setDate(today.getDate() + 1)
+
+        return p.available_slots.some((slot) => {
+          if (!slot.is_available) return false
+
+          const todayDayOfWeek = today.getDay()
+          const tomorrowDayOfWeek = tomorrow.getDay()
+
+          if (slot.day_of_week !== todayDayOfWeek && slot.day_of_week !== tomorrowDayOfWeek) {
+            return false
+          }
+
+          const checkDate = slot.day_of_week === todayDayOfWeek ? today : tomorrow
+
+          // Check if slot is not in past and not booked
+          const [hours, minutes] = slot.time_slot.split(":").map(Number)
+          const slotDateTime = new Date(checkDate)
+          slotDateTime.setHours(hours, minutes, 0, 0)
+
+          if (slotDateTime <= new Date()) return false
+
+          const dateString = checkDate.toISOString().split("T")[0]
+          const isBooked = bookedSessions.some(
+            (session) =>
+              session.psychologist_id === p.id &&
+              session.session_date === dateString &&
+              session.session_time === slot.time_slot &&
+              session.modality === slot.modality &&
+              session.status === "scheduled",
+          )
+
+          return !isBooked
+        })
+      })
+    }
+
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
@@ -98,13 +156,75 @@ export default function PsychologyApp() {
       )
     }
 
-    return filtered
-  }, [psychologists, selectedSpecialty, selectedModality, searchQuery, bookedSessions, userTimezone])
+    // Sort by immediate availability first
+    return filtered.sort((a, b) => {
+      const aHasImmediate = hasImmediateAvailability(a)
+      const bHasImmediate = hasImmediateAvailability(b)
+
+      if (aHasImmediate && !bHasImmediate) return -1
+      if (!aHasImmediate && bHasImmediate) return 1
+
+      return b.rating - a.rating // Then by rating
+    })
+  }, [
+    psychologists,
+    selectedSpecialty,
+    selectedModality,
+    selectedAvailability,
+    searchQuery,
+    bookedSessions,
+    userTimezone,
+  ])
+
+  const hasImmediateAvailability = (psychologist: PsychologistWithSpecialties) => {
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    return psychologist.available_slots.some((slot) => {
+      if (!slot.is_available) return false
+
+      const todayDayOfWeek = today.getDay()
+      const tomorrowDayOfWeek = tomorrow.getDay()
+
+      if (slot.day_of_week !== todayDayOfWeek && slot.day_of_week !== tomorrowDayOfWeek) {
+        return false
+      }
+
+      const checkDate = slot.day_of_week === todayDayOfWeek ? today : tomorrow
+
+      // Check if slot is not in past and not booked
+      const [hours, minutes] = slot.time_slot.split(":").map(Number)
+      const slotDateTime = new Date(checkDate)
+      slotDateTime.setHours(hours, minutes, 0, 0)
+
+      if (slotDateTime <= new Date()) return false
+
+      const dateString = checkDate.toISOString().split("T")[0]
+      const isBooked = bookedSessions.some(
+        (session) =>
+          session.psychologist_id === psychologist.id &&
+          session.session_date === dateString &&
+          session.session_time === slot.time_slot &&
+          session.modality === slot.modality &&
+          session.status === "scheduled",
+      )
+
+      return !isBooked
+    })
+  }
 
   const resetFilters = () => {
     setSelectedSpecialty("Todas")
     setSelectedModality("Todas")
+    setSelectedAvailability("Todas")
     setSearchQuery("")
+  }
+
+  const handleQuickBook = (psychologist: PsychologistWithSpecialties, slot: any) => {
+    setSelectedPsychologist(psychologist)
+    setSelectedSlot(slot)
+    setIsQuickBooking(true)
   }
 
   const getWeekDates = (weekOffset = 0) => {
@@ -282,8 +402,7 @@ export default function PsychologyApp() {
         setShowConfirmation(true)
         setSelectedPsychologist(null)
         setSelectedSlot(null)
-        setPatientName("")
-        setPatientEmail("")
+        setIsQuickBooking(false)
 
         // Reload booked sessions to update the calendar
         const updatedBookedSessions = await getBookedSessions()
@@ -373,7 +492,10 @@ export default function PsychologyApp() {
           </div>
 
           {userTimezone && (
-            <div data-testid="timezone-display" className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground">
+            <div
+              data-testid="timezone-display"
+              className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground"
+            >
               <Clock className="h-4 w-4" />
               <span>Horarios en tu zona: {userTimezone}</span>
             </div>
@@ -401,6 +523,8 @@ export default function PsychologyApp() {
           onSearchChange={setSearchQuery}
           selectedModality={selectedModality}
           onModalityChange={setSelectedModality}
+          selectedAvailability={selectedAvailability}
+          onAvailabilityChange={setSelectedAvailability}
           resultCount={filteredPsychologists.length}
         />
 
@@ -412,6 +536,7 @@ export default function PsychologyApp() {
                 key={psychologist.id}
                 psychologist={psychologist}
                 onViewAvailability={setSelectedPsychologist}
+                onQuickBook={handleQuickBook}
                 bookedSessions={bookedSessions}
                 userTimezone={userTimezone}
               />
@@ -421,9 +546,150 @@ export default function PsychologyApp() {
           <EmptyState type={psychologists.length === 0 ? "no-psychologists" : "no-results"} onReset={resetFilters} />
         )}
 
-        {/* Booking Modal */}
-        <Dialog open={!!selectedPsychologist} onOpenChange={() => setSelectedPsychologist(null)}>
-          <DialogContent data-testid="calendar" className="max-w-5xl max-h-[90vh] overflow-y-auto sm:max-w-5xl w-[95vw] sm:w-auto">
+        {/* Quick Booking Modal */}
+        <Dialog
+          open={isQuickBooking}
+          onOpenChange={() => {
+            setIsQuickBooking(false)
+            setSelectedPsychologist(null)
+            setSelectedSlot(null)
+          }}
+        >
+          <DialogContent data-testid="quick-booking" className="max-w-lg">
+            <DialogHeader>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setIsQuickBooking(false)
+                    setSelectedPsychologist(null)
+                    setSelectedSlot(null)
+                  }}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <DialogTitle className="text-xl">Reserva Rápida</DialogTitle>
+                  <DialogDescription>Completa tus datos para confirmar la cita</DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Selected Appointment Summary */}
+              {selectedSlot && selectedPsychologist && (
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-full overflow-hidden">
+                        <img
+                          src={selectedPsychologist.image_url || "/placeholder.svg"}
+                          alt={selectedPsychologist.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{selectedPsychologist.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedPsychologist.experience} de experiencia
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Fecha:</span>
+                        <div className="font-medium">
+                          {selectedSlot.isToday ? "Hoy" : selectedSlot.isTomorrow ? "Mañana" : selectedSlot.dateString}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Hora:</span>
+                        <div className="font-medium">{selectedSlot.time_slot}</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Modalidad:</span>
+                        <div className="font-medium flex items-center gap-1">
+                          {selectedSlot.modality === "online" ? (
+                            <Video className="h-4 w-4" />
+                          ) : (
+                            <MapPin className="h-4 w-4" />
+                          )}
+                          {selectedSlot.modality === "online" ? "Online" : "Presencial"}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Precio:</span>
+                        <div className="font-semibold text-lg">${selectedPsychologist.price} USD</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Patient Form */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Tus Datos</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="quickPatientName">Nombre completo *</Label>
+                    <Input
+                      id="quickPatientName"
+                      name="quickPatientName"
+                      value={patientName}
+                      onChange={(e) => setPatientName(e.target.value)}
+                      placeholder="Tu nombre completo"
+                      className="mt-1"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="quickPatientEmail">Correo electrónico *</Label>
+                    <Input
+                      id="quickPatientEmail"
+                      name="quickPatientEmail"
+                      type="email"
+                      value={patientEmail}
+                      onChange={(e) => setPatientEmail(e.target.value)}
+                      placeholder="tu@email.com"
+                      className="mt-1"
+                      required
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* CTA Button */}
+              <Button
+                className="w-full h-12 text-lg"
+                onClick={handleBookAppointment}
+                disabled={!selectedSlot || !patientName || !patientEmail || bookingLoading}
+              >
+                {bookingLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Confirmando tu cita...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    Confirmar Cita Ahora
+                  </>
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Full Calendar Booking Modal */}
+        <Dialog open={!!selectedPsychologist && !isQuickBooking} onOpenChange={() => setSelectedPsychologist(null)}>
+          <DialogContent
+            data-testid="calendar"
+            className="max-w-5xl max-h-[90vh] overflow-y-auto sm:max-w-5xl w-[95vw] sm:w-auto"
+          >
             <DialogHeader>
               <DialogTitle className="text-2xl">Agendar Sesión - {selectedPsychologist?.name}</DialogTitle>
               <DialogDescription className="text-lg">
@@ -525,7 +791,7 @@ export default function PsychologyApp() {
                                 data-modality={slot.modality}
                                 variant={isSelected ? "default" : "outline"}
                                 size="sm"
-                                className={`w-full text-xs flex flex-col gap-1 h-auto py-2 ${isSelected ? 'selected' : 'available'}`}
+                                className={`w-full text-xs flex flex-col gap-1 h-auto py-2 ${isSelected ? "selected" : "available"}`}
                                 onClick={() => setSelectedSlot(slotData)}
                               >
                                 <div className="font-medium">{convertedTime}</div>
@@ -686,157 +952,38 @@ export default function PsychologyApp() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">Psicólogo:</span>
-                        <div className="font-medium">{selectedPsychologist?.name}</div>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Especialidades:</span>
-                        <div className="font-medium">
-                          {selectedPsychologist?.specialties.map((s) => s.name).join(", ")}
-                        </div>
+                        <div className="font-medium">{selectedPsychologist.name}</div>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Fecha:</span>
                         <div className="font-medium">
-                          {selectedSlot.date.toLocaleDateString("es-ES", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          {selectedSlot.isToday ? "Hoy" : selectedSlot.isTomorrow ? "Mañana" : selectedSlot.dateString}
                         </div>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Hora:</span>
-                        <div className="font-medium">{selectedSlot.convertedTime}</div>
+                        <div className="font-medium">{selectedSlot.time_slot}</div>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Modalidad:</span>
-                        <div data-testid="modality-info" className="font-medium flex items-center gap-2">
+                        <div className="font-medium flex items-center gap-1">
                           {selectedSlot.modality === "online" ? (
                             <Video className="h-4 w-4" />
                           ) : (
                             <MapPin className="h-4 w-4" />
                           )}
-                          {selectedSlot.modality === "online" ? "Sesión Online" : "Sesión Presencial"}
+                          {selectedSlot.modality === "online" ? "Online" : "Presencial"}
                         </div>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Precio:</span>
-                        <div className="font-semibold text-lg">${selectedPsychologist?.price} USD</div>
+                        <div className="font-semibold text-lg">${selectedPsychologist.price} USD</div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               )}
-
-              {/* Validation Error */}
-              {(!patientName || !patientEmail) && (
-                <div data-testid="validation-error" className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
-                  Por favor completa todos los campos requeridos
-                </div>
-              )}
-
-              {/* CTA Button */}
-              <Button
-                className="w-full h-12 sm:h-12 text-base sm:text-lg"
-                onClick={handleBookAppointment}
-                disabled={!selectedSlot || !patientName || !patientEmail || bookingLoading}
-              >
-                {bookingLoading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    <span className="hidden sm:inline">Agendando tu cita...</span>
-                    <span className="sm:hidden">Agendando...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="h-5 w-5 mr-2" />
-                    <span className="hidden sm:inline">Confirmar Cita</span>
-                    <span className="sm:hidden">Confirmar</span>
-                  </>
-                )}
-              </Button>
             </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Confirmation Modal */}
-        <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-          <DialogContent data-testid="confirmation-modal" className="max-w-lg">
-            <DialogHeader>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <DialogTitle className="text-xl text-green-800">¡Cita Agendada!</DialogTitle>
-                  <DialogDescription className="text-green-600">
-                    Tu sesión ha sido confirmada exitosamente
-                  </DialogDescription>
-                </div>
-              </div>
-            </DialogHeader>
-
-            {bookedAppointment && (
-              <div className="space-y-4">
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-green-800 mb-2">Detalles de tu cita:</h3>
-                  <div className="space-y-2 text-sm text-green-700">
-                    <div>
-                      <span className="font-medium">Psicólogo:</span> {bookedAppointment.psychologist.name}
-                    </div>
-                    <div>
-                      <span className="font-medium">Fecha:</span>{" "}
-                      {bookedAppointment.slot.date.toLocaleDateString("es-ES", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </div>
-                    <div>
-                      <span className="font-medium">Hora:</span> {bookedAppointment.slot.convertedTime} (
-                      {bookedAppointment.userTimezone})
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">Modalidad:</span>
-                      {bookedAppointment.slot.modality === "online" ? (
-                        <Video className="h-4 w-4" />
-                      ) : (
-                        <MapPin className="h-4 w-4" />
-                      )}
-                      {bookedAppointment.slot.modality === "online" ? "Sesión Online" : "Sesión Presencial"}
-                    </div>
-                    <div>
-                      <span className="font-medium">Precio:</span> ${bookedAppointment.psychologist.price} USD
-                    </div>
-                  </div>
-                </div>
-
-                <div data-testid="session-instructions" className="text-sm text-muted-foreground bg-muted p-4 rounded-lg">
-                  <p className="mb-2">
-                    <strong>Próximos pasos:</strong>
-                  </p>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>Recibirás un email de confirmación en los próximos minutos</li>
-                    {bookedAppointment.slot.modality === "online" ? (
-                      <li>Te enviaremos el enlace de la videollamada 30 minutos antes de tu cita</li>
-                    ) : (
-                      <li>Te enviaremos la dirección del consultorio y las indicaciones de acceso</li>
-                    )}
-                    <li>
-                      {bookedAppointment.slot.modality === "online"
-                        ? "Asegúrate de tener una conexión estable a internet"
-                        : "Llega 10 minutos antes de tu cita al consultorio"}
-                    </li>
-                  </ul>
-                </div>
-
-                <Button className="w-full" onClick={() => setShowConfirmation(false)}>
-                  Entendido
-                </Button>
-              </div>
-            )}
           </DialogContent>
         </Dialog>
       </div>
