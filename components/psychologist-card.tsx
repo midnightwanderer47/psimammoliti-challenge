@@ -305,25 +305,26 @@ export function PsychologistCard({
           <Award className="h-3 w-3" />
           {psychologist.experience} de experiencia
         </CardDescription>
+        {/* Rating */}
+       <div data-testid="rating" className="flex items-center justify-center gap-2 rounded-lg">
+         <div className="flex items-center gap-1">
+           {[...Array(5)].map((_, i) => (
+             <Star
+               key={i}
+               className={`h-4 w-4 ${
+                 i < Math.floor(psychologist.rating)
+                   ? "fill-amber-500 text-amber-500"
+                   : "text-amber-300"
+               }`}
+             />
+           ))}
+         </div>
+         <span className="font-semibold">{psychologist.rating}</span>
+         {/* <span className="text-xs text-muted-foreground">(127 reseñas)</span> */}
+       </div>
       </CardHeader>
 
       <CardContent className="space-y-4 pt-0">
-        {/* Rating */}
-        <div data-testid="rating" className="flex items-center justify-center gap-2 p-2 bg-muted rounded-lg">
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`h-4 w-4 ${
-                  i < Math.floor(psychologist.rating) ? "fill-foreground text-foreground" : "text-muted-foreground"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="font-semibold">{psychologist.rating}</span>
-          {/* <span className="text-xs text-muted-foreground">(127 reseñas)</span> */}
-        </div>
-
         {/* Specialties */}
         <div data-testid="specialties">
           <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
