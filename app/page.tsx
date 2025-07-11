@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2, Shield, Video, MapPin } from "lucide-react"
+import { CheckCircle, Clock, ChevronLeft, ChevronRight, Brain, Loader2, Shield, Video, MapPin } from "lucide-react"
 import { getPsychologists, getSpecialties, bookSession, getBookedSessions } from "@/lib/database"
 import type { PsychologistWithSpecialties, Specialty, Session } from "@/lib/supabase"
 import { PsychologistCard } from "@/components/psychologist-card"
@@ -371,10 +371,6 @@ export default function PsychologyApp() {
           {/* Features */}
           <div className="flex flex-wrap justify-center gap-6 mb-8">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Shield className="h-4 w-4" />
-              <span>100% Confidencial</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Video className="h-4 w-4" />
               <span>Sesiones Online</span>
             </div>
@@ -383,8 +379,8 @@ export default function PsychologyApp() {
               <span>Sesiones Presenciales</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>Disponible 24/7</span>
+              <Brain className="h-4 w-4" />
+              <span>Múltiples especialidades</span>
             </div>
           </div>
 

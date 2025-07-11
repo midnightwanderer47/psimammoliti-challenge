@@ -40,8 +40,7 @@ export function FilterSection({
             <Filter className="h-5 w-5" />
           </div>
           <div>
-            <CardTitle className="text-lg">Filtros de Búsqueda</CardTitle>
-            <CardDescription>Encuentra el psicólogo ideal para ti</CardDescription>
+            <CardTitle className="text-lg">Filtros de búsqueda</CardTitle>
           </div>
         </div>
       </CardHeader>

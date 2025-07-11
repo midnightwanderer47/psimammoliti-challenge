@@ -24,6 +24,7 @@ export function PsychologistCard({
   userTimezone = "",
 }: PsychologistCardProps) {
   const [currentWeek, setCurrentWeek] = useState(0)
+  const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set())
 
   // Get unique modalities available for this psychologist
   const availableModalities = [...new Set(psychologist.available_slots.map((slot) => slot.modality))]
@@ -107,12 +108,12 @@ export function PsychologistCard({
   }
 
   // Get available slots for a specific day
-  const getAvailableSlotsForDay = (dayOfWeek: number, date: Date) => {
+  const getAvailableSlotsForDay = (dayOfWeek: number, date: Date, showAll = false) => {
     // Convert JavaScript day (0=Sunday, 1=Monday) to DB day (0=Monday, 6=Sunday)
     const jsDay = date.getDay() // 0 = Sunday, 1 = Monday, etc.
     const dbDay = jsDay === 0 ? 6 : jsDay - 1 // Convert: Sunday(0) -> 6, Monday(1) -> 0, etc.
     
-    return psychologist.available_slots
+    const allSlots = psychologist.available_slots
       .filter((slot) => slot.day_of_week === dbDay && slot.is_available)
       .filter((slot) => !isSlotInPast(date, slot.time_slot, userTimezone))
       .sort((a, b) => a.time_slot.localeCompare(b.time_slot))
@@ -121,8 +122,9 @@ export function PsychologistCard({
         modality: slot.modality,
         isBooked: isSlotBooked(psychologist.id, date, slot.time_slot, slot.modality),
       }))
-      .filter((slot) => !slot.isBooked) // Only show available slots
-      .slice(0, 3) // Show max 3 slots per day
+      .filter((slot) => !slot.isBooked) // Only show available slots (booked slots disappear)
+    
+    return showAll ? allSlots : allSlots.slice(0, 3)
   }
 
   // Check if a week has any available slots
@@ -250,6 +252,17 @@ export function PsychologistCard({
     onSlotSelect(psychologist, slotData)
   }
 
+  const toggleDayExpansion = (date: Date) => {
+    const dateKey = date.toISOString().split('T')[0]
+    const newExpandedDays = new Set(expandedDays)
+    if (newExpandedDays.has(dateKey)) {
+      newExpandedDays.delete(dateKey)
+    } else {
+      newExpandedDays.add(dateKey)
+    }
+    setExpandedDays(newExpandedDays)
+  }
+
   // Check if navigation buttons should be disabled
   const canGoToPrevious = () => {
     for (let week = currentWeek - 1; week >= 0; week--) {
@@ -363,8 +376,12 @@ export function PsychologistCard({
           {/* Calendar Grid */}
           <div className="grid grid-cols-4 gap-2">
             {weekDates.map((date, index) => {
-              const availableSlots = getAvailableSlotsForDay(date.getDay(), date)
+              const dateKey = date.toISOString().split('T')[0]
+              const isExpanded = expandedDays.has(dateKey)
+              const availableSlots = getAvailableSlotsForDay(date.getDay(), date, isExpanded)
+              const allSlots = getAvailableSlotsForDay(date.getDay(), date, true)
               const dayName = date.toLocaleDateString("es-ES", { weekday: "short" })
+              const hasMoreSlots = allSlots.length > 3 || (process.env.NODE_ENV === 'development' && allSlots.length > 0)
 
               return (
                 <div key={index} className="text-center">
@@ -405,6 +422,74 @@ export function PsychologistCard({
               )
             })}
           </div>
+          
+          {/* Expand/Collapse Button - Positioned below calendar */}
+          {(() => {
+            // Check if there are any days with more than 3 slots available
+            const daysWithMoreSlots = weekDates.filter((date) => {
+              const dateKey = date.toISOString().split('T')[0]
+              const allSlots = getAvailableSlotsForDay(date.getDay(), date, true)
+              return allSlots.length > 3
+            })
+
+            // Check if there are any expanded days
+            const hasExpandedDays = weekDates.some((date) => {
+              const dateKey = date.toISOString().split('T')[0]
+              return expandedDays.has(dateKey)
+            })
+
+            // Only show button if there are actually more slots to show
+            if (daysWithMoreSlots.length === 0 && !hasExpandedDays) {
+              return null
+            }
+
+            // Determine which day to toggle
+            const dayToToggle = hasExpandedDays 
+              ? weekDates.find((date) => {
+                  const dateKey = date.toISOString().split('T')[0]
+                  return expandedDays.has(dateKey)
+                })
+              : daysWithMoreSlots[0]
+
+            if (!dayToToggle) return null
+
+            const isExpanded = hasExpandedDays
+            const buttonText = isExpanded ? "Ver menos" : "Ver más horas"
+
+            return (
+              <div className="flex justify-center mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-background border border-border/50 hover:border-primary/60 hover:bg-primary/5 group"
+                  onClick={() => toggleDayExpansion(dayToToggle)}
+                >
+                  <div className="flex items-center gap-2 px-4 py-2">
+                    <span className="text-sm font-medium text-foreground/90 group-hover:text-foreground">
+                      {buttonText}
+                    </span>
+                    
+                    {/* Animated chevron icon */}
+                    <div className={`transition-transform duration-300 ease-out ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
+                      <svg 
+                        width="14" 
+                        height="14" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        className="text-foreground/70 group-hover:text-foreground/90"
+                      >
+                        <polyline points="6,9 12,15 18,9" />
+                      </svg>
+                    </div>
+                  </div>
+                </Button>
+              </div>
+            )
+          })()}
 
           {/* Availability Summary */}
           {/* {totalAvailableSlots > 0 && (
