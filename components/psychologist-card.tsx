@@ -362,14 +362,12 @@ export function PsychologistCard({
 
               return (
                 <div key={dayName} className="text-center">
-                  <div className="font-medium text-xs mb-2 p-2 bg-primary/10 rounded border-2 border-primary/20 relative">
-                    <div className="font-bold text-primary uppercase tracking-wide">{dayName}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5 font-medium">
-                      {formatDate(weekDates[index])}
-                    </div>
+                  <div className="font-medium text-xs mb-2 p-2 bg-background rounded border relative">
+                    <div className="font-semibold text-foreground">{dayName}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{formatDate(weekDates[index])}</div>
                     {/* Add visual indicator for today */}
                     {weekDates[index].toDateString() === new Date().toDateString() && (
-                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
                     )}
                   </div>
                   <div className="space-y-1">
