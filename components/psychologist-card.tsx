@@ -204,11 +204,11 @@ export function PsychologistCard({
 
   const hasLowAvailability = totalAvailableSlots <= 3
   const weekDates = getWeekDates(currentWeek)
-  const dayNames = ["Lunes", "Martes", "Miércoles", "Jueves"]
+  const dayNames = ["Lun", "Mar", "Mié", "Jue"]
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("es-ES", {
-      day: "2-digit",
+      day: "numeric",
       month: "short",
     })
   }
@@ -216,20 +216,20 @@ export function PsychologistCard({
   // Calculate timezone offset for display
   const getTimezoneOffset = () => {
     if (!userTimezone) return ""
-
+    
     try {
       const now = new Date()
-      const utcTime = now.getTime() + now.getTimezoneOffset() * 60000
+      const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000)
       const userTime = new Date(utcTime).toLocaleString("en-US", { timeZone: userTimezone })
       const userDate = new Date(userTime)
       const offsetMs = userDate.getTimezoneOffset() * 60000
       const offsetHours = Math.abs(Math.floor(offsetMs / (1000 * 60 * 60)))
       const offsetMinutes = Math.abs(Math.floor((offsetMs % (1000 * 60 * 60)) / (1000 * 60)))
       const sign = offsetMs > 0 ? "-" : "+"
-
+      
       const offsetString = `(${sign}${offsetHours.toString().padStart(2, "0")}:${offsetMinutes.toString().padStart(2, "0")})`
       const timezoneName = userTimezone.split("/").pop()?.replace("_", " ") || userTimezone
-
+      
       return `${offsetString} ${timezoneName}`
     } catch (error) {
       return userTimezone
@@ -256,7 +256,7 @@ export function PsychologistCard({
   }
 
   const canGoToNext = () => {
-    for (let week = currentWeek + 1; week < 8; week--) {
+    for (let week = currentWeek + 1; week < 8; week++) {
       if (weekHasAvailability(week)) return true
     }
     return false
@@ -348,7 +348,9 @@ export function PsychologistCard({
             </Button>
             <div className="text-sm font-medium text-center">
               <div>{weekDates[0].toLocaleDateString("es-ES", { month: "long", year: "numeric" })}</div>
-              {userTimezone && <div className="text-xs text-muted-foreground">{getTimezoneOffset()}</div>}
+              {userTimezone && (
+                <div className="text-xs text-muted-foreground">{getTimezoneOffset()}</div>
+              )}
             </div>
             <Button variant="ghost" size="sm" onClick={goToNextWeek} className="h-8 w-8 p-0" disabled={!canGoToNext()}>
               <ChevronRight className="h-4 w-4" />
@@ -362,13 +364,9 @@ export function PsychologistCard({
 
               return (
                 <div key={dayName} className="text-center">
-                  <div className="font-medium text-xs mb-2 p-2 bg-background rounded border relative">
-                    <div className="font-semibold text-foreground">{dayName}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{formatDate(weekDates[index])}</div>
-                    {/* Add visual indicator for today */}
-                    {weekDates[index].toDateString() === new Date().toDateString() && (
-                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
-                    )}
+                  <div className="font-medium text-xs mb-2 p-2 bg-background rounded border">
+                    <div>{dayName}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{formatDate(weekDates[index])}</div>
                   </div>
                   <div className="space-y-1">
                     {availableSlots.map((slot, timeIndex) => {
