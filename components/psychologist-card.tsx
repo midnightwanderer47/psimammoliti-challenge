@@ -38,58 +38,139 @@ export function PsychologistCard({
     )
   }
 
-  // Helper function to check if slot is in past
+  // Helper function to check if slot is in past (same logic as in app/page.tsx)
   const isSlotInPast = (date: Date, timeSlot: string, userTimezone: string) => {
     if (!userTimezone) return false
 
     try {
+      // Parse the time slot
       const [hours, minutes] = timeSlot.split(":").map(Number)
       if (isNaN(hours) || isNaN(minutes)) return false
 
-      const slotDateTime = new Date(date)
-      slotDateTime.setHours(hours, minutes, 0, 0)
+      // Create a date object for the slot in the user's timezone
+      // We need to create the date string in the user's timezone
+      const slotDate = new Date(date)
+      const year = slotDate.getFullYear()
+      const month = slotDate.getMonth() + 1
+      const day = slotDate.getDate()
 
-      return slotDateTime <= new Date()
+      // Create a date string in the user's timezone
+      const slotDateString = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`
+      const slotTimeString = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`
+
+      // Create the full datetime string in the user's timezone
+      const slotDateTimeString = `${slotDateString}T${slotTimeString}`
+
+      // Create a Date object that represents this time in the user's timezone
+      // We'll use the Intl.DateTimeFormat to ensure proper timezone handling
+      const slotDateTime = new Date(slotDateTimeString + "Z") // Add Z to treat as UTC
+
+      // Get current time
+      const now = new Date()
+
+      return slotDateTime < now
     } catch (error) {
-      return false
+      console.error("Error checking if slot is in past:", error)
+      return false // If there's an error, don't filter out the slot
+    }
+  }
+
+  // Helper function to convert time to user timezone (same logic as in app/page.tsx)
+  const convertTimeToUserTimezone = (time: string, date: Date) => {
+    if (!userTimezone || !time) {
+      return time
+    }
+
+    try {
+      // Parse the time string (format: "HH:MM")
+      const [hours, minutes] = time.split(":").map(Number)
+
+      if (isNaN(hours) || isNaN(minutes)) {
+        return time
+      }
+
+      // Create a proper UTC date string for the specific date with the given time
+      const dateString = date.toISOString().split("T")[0] // YYYY-MM-DD format
+
+      // Ensure time is in HH:MM format (remove any seconds if present)
+      const cleanTime = time.split(":").slice(0, 2).join(":")
+      const utcDateTimeString = `${dateString}T${cleanTime}:00.000Z` // UTC time
+
+      // Create a Date object from the UTC time
+      const utcDate = new Date(utcDateTimeString)
+
+      if (isNaN(utcDate.getTime())) {
+        return time
+      }
+
+      // Get the time in user's timezone
+      const userTimeString = utcDate.toLocaleTimeString("en-US", {
+        timeZone: userTimezone,
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+
+      // Validate the result
+      if (userTimeString && userTimeString !== "Invalid Date") {
+        return userTimeString
+      } else {
+        return time // Fallback to original time
+      }
+    } catch (error) {
+      return time // Fallback to original time if conversion fails
     }
   }
 
   // Get next available slots for quick booking
   const getNextAvailableSlots = () => {
     const today = new Date()
-    const slots = []
+    const allSlots = []
 
     // Check next 7 days
     for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
       const checkDate = new Date(today)
       checkDate.setDate(today.getDate() + dayOffset)
-      const dayOfWeek = checkDate.getDay()
+      // Convert JavaScript day of week (0=Sunday) to calendar day of week (0=Monday)
+      let dayOfWeek = checkDate.getDay()
+      // Convert: Sunday(0) -> 6, Monday(1) -> 0, Tuesday(2) -> 1, etc.
+      dayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1
 
       const daySlots = psychologist.available_slots
         .filter((slot) => slot.day_of_week === dayOfWeek && slot.is_available)
         .filter((slot) => !isSlotInPast(checkDate, slot.time_slot, userTimezone))
         .filter((slot) => !isSlotBooked(psychologist.id, checkDate, slot.time_slot, slot.modality))
-        .map((slot) => ({
-          ...slot,
-          date: checkDate,
-          dateString: checkDate.toLocaleDateString("es-ES", {
-            weekday: "short",
-            day: "numeric",
-            month: "short",
-          }),
-          isToday: dayOffset === 0,
-          isTomorrow: dayOffset === 1,
-        }))
-        .sort((a, b) => a.time_slot.localeCompare(b.time_slot))
+        .map((slot) => {
+          const convertedTime = convertTimeToUserTimezone(slot.time_slot, checkDate)
+          return {
+            ...slot,
+            date: checkDate,
+            dateString: checkDate.toLocaleDateString("es-ES", {
+              weekday: "short",
+              day: "numeric",
+              month: "short",
+            }),
+            isToday: dayOffset === 0,
+            isTomorrow: dayOffset === 1,
+            convertedTime: convertedTime,
+            dayOffset: dayOffset,
+          }
+        })
 
-      slots.push(...daySlots)
-
-      // Stop when we have at least 3 slots or checked all days
-      if (slots.length >= 3) break
+      allSlots.push(...daySlots)
     }
 
-    return slots.slice(0, 3)
+    // Sort all slots by date and time to get the earliest available slots
+    allSlots.sort((a, b) => {
+      // First sort by day offset (earlier days first)
+      if (a.dayOffset !== b.dayOffset) {
+        return a.dayOffset - b.dayOffset
+      }
+      // Then sort by time within the same day
+      return a.time_slot.localeCompare(b.time_slot)
+    })
+
+    return allSlots.slice(0, 3)
   }
 
   const nextSlots = getNextAvailableSlots()
@@ -192,7 +273,7 @@ export function PsychologistCard({
                     onQuickBook(psychologist, {
                       ...slot,
                       originalTime: slot.time_slot,
-                      convertedTime: slot.time_slot, // You might want to convert timezone here
+                      convertedTime: slot.convertedTime,
                       day: slot.dateString,
                     })
                   }
@@ -201,7 +282,7 @@ export function PsychologistCard({
                     <span className="font-medium">
                       {slot.isToday ? "Hoy" : slot.isTomorrow ? "Mañana" : slot.dateString}
                     </span>
-                    <span>{slot.time_slot}</span>
+                    <span>{slot.convertedTime}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     {slot.modality === "online" ? <Video className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
