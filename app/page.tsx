@@ -83,9 +83,17 @@ export default function PsychologyApp() {
 
     // Filter by modality
     if (selectedModality !== "Todas") {
-      filtered = filtered.filter((p) =>
-        p.available_slots.some((slot) => slot.modality === selectedModality && slot.is_available),
-      )
+      filtered = filtered.filter((p) => {
+        // Get all available modalities for this psychologist
+        const availableModalities = [...new Set(
+          p.available_slots
+            .filter(slot => slot.is_available)
+            .map(slot => slot.modality)
+        )]
+        
+        // Only show psychologists who offer ONLY the selected modality
+        return availableModalities.length === 1 && availableModalities[0] === selectedModality
+      })
     }
 
     // Filter by search query
