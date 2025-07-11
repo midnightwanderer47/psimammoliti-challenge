@@ -89,6 +89,44 @@ export default function PsychologyApp() {
     }
   }
 
+  const hasImmediateAvailability = (psychologist: PsychologistWithSpecialties) => {
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    return psychologist.available_slots.some((slot) => {
+      if (!slot.is_available) return false
+
+      const todayDayOfWeek = today.getDay()
+      const tomorrowDayOfWeek = tomorrow.getDay()
+
+      if (slot.day_of_week !== todayDayOfWeek && slot.day_of_week !== tomorrowDayOfWeek) {
+        return false
+      }
+
+      const checkDate = slot.day_of_week === todayDayOfWeek ? today : tomorrow
+
+      // Check if slot is not in past and not booked
+      const [hours, minutes] = slot.time_slot.split(":").map(Number)
+      const slotDateTime = new Date(checkDate)
+      slotDateTime.setHours(hours, minutes, 0, 0)
+
+      if (slotDateTime <= new Date()) return false
+
+      const dateString = checkDate.toISOString().split("T")[0]
+      const isBooked = bookedSessions.some(
+        (session) =>
+          session.psychologist_id === psychologist.id &&
+          session.session_date === dateString &&
+          session.session_time === slot.time_slot &&
+          session.modality === slot.modality &&
+          session.status === "scheduled",
+      )
+
+      return !isBooked
+    })
+  }
+
   const filteredPsychologists = useMemo(() => {
     let filtered = psychologists
 
@@ -175,44 +213,6 @@ export default function PsychologyApp() {
     bookedSessions,
     userTimezone,
   ])
-
-  const hasImmediateAvailability = (psychologist: PsychologistWithSpecialties) => {
-    const today = new Date()
-    const tomorrow = new Date(today)
-    tomorrow.setDate(today.getDate() + 1)
-
-    return psychologist.available_slots.some((slot) => {
-      if (!slot.is_available) return false
-
-      const todayDayOfWeek = today.getDay()
-      const tomorrowDayOfWeek = tomorrow.getDay()
-
-      if (slot.day_of_week !== todayDayOfWeek && slot.day_of_week !== tomorrowDayOfWeek) {
-        return false
-      }
-
-      const checkDate = slot.day_of_week === todayDayOfWeek ? today : tomorrow
-
-      // Check if slot is not in past and not booked
-      const [hours, minutes] = slot.time_slot.split(":").map(Number)
-      const slotDateTime = new Date(checkDate)
-      slotDateTime.setHours(hours, minutes, 0, 0)
-
-      if (slotDateTime <= new Date()) return false
-
-      const dateString = checkDate.toISOString().split("T")[0]
-      const isBooked = bookedSessions.some(
-        (session) =>
-          session.psychologist_id === psychologist.id &&
-          session.session_date === dateString &&
-          session.session_time === slot.time_slot &&
-          session.modality === slot.modality &&
-          session.status === "scheduled",
-      )
-
-      return !isBooked
-    })
-  }
 
   const resetFilters = () => {
     setSelectedSpecialty("Todas")
