@@ -325,7 +325,7 @@ export function PsychologistCard({
             </Button>
             <div className="text-sm font-medium">
               {weekDates[0].toLocaleDateString("es-ES", { month: "long", year: "numeric" })}
-              {currentWeek > 0 && <div className="text-xs text-muted-foreground">Semana {currentWeek + 1}</div>}
+              {/* {currentWeek > 0 && <div className="text-xs text-muted-foreground">Semana {currentWeek + 1}</div>} */}
             </div>
             <Button variant="ghost" size="sm" onClick={goToNextWeek} className="h-8 w-8 p-0" disabled={!canGoToNext()}>
               <ChevronRight className="h-4 w-4" />
@@ -378,18 +378,18 @@ export function PsychologistCard({
           </div>
 
           {/* Availability Summary */}
-          {totalAvailableSlots > 0 && (
+          {/* {totalAvailableSlots > 0 && (
             <div className="mt-3 text-center">
               <div className="text-xs text-muted-foreground">
                 {totalAvailableSlots} horario{totalAvailableSlots !== 1 ? "s" : ""} disponible
                 {totalAvailableSlots !== 1 ? "s" : ""} esta semana
               </div>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Price and CTA */}
-        <div className="pt-2 border-t">
+        <div className="pt-2">
           <div className="flex items-center justify-between mb-3">
             <div>
               <div data-testid="price" className="text-2xl font-bold">
