@@ -69,10 +69,13 @@ export function FilterSection({
           {/* Specialty Filter */}
           <Select value={selectedSpecialty} onValueChange={onSpecialtyChange}>
             <SelectTrigger name="specialty">
-              <SelectValue placeholder="Selecciona una especialidad" />
+              <SelectValue placeholder="Selecciona una especialidad">
+                {selectedSpecialty === "Todas" ? "Todas las especialidades" : selectedSpecialty}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {specialties.map((specialty) => (
+              <SelectItem value="Todas">Todas las especialidades</SelectItem>
+              {specialties.filter(specialty => specialty.name !== "Todas").map((specialty) => (
                 <SelectItem key={specialty.id} value={specialty.name}>
                   {specialty.name}
                 </SelectItem>
