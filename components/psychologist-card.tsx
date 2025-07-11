@@ -23,7 +23,7 @@ export function PsychologistCard({
   bookedSessions = [],
   userTimezone = "",
 }: PsychologistCardProps) {
-  const [showCalendar, setShowCalendar] = useState(false)
+  // const [showCalendar, setShowCalendar] = useState(false)
   const [currentWeek, setCurrentWeek] = useState(0)
 
   // Get unique modalities available for this psychologist
@@ -233,7 +233,7 @@ export function PsychologistCard({
         </p>
 
         {/* Available Modalities */}
-        <div data-testid="modalities">
+        {/* <div data-testid="modalities">
           <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
             <Clock className="h-4 w-4" />
             Modalidades disponibles
@@ -248,10 +248,10 @@ export function PsychologistCard({
               </Badge>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Availability indicator */}
-        <div
+        {/* <div
           data-testid="availability-indicator"
           className={`flex items-center gap-2 text-xs p-2 rounded-lg ${
             hasLowAvailability ? "text-orange-700 bg-orange-50 border border-orange-200" : "text-green-700 bg-green-50"
@@ -268,64 +268,43 @@ export function PsychologistCard({
               <span>Disponible esta semana ({totalAvailableSlots} horarios)</span>
             </>
           )}
-        </div>
+        </div> */}
 
         {/* Integrated Calendar */}
-        {showCalendar && (
-          <div className="border rounded-lg p-3 bg-muted/30">
-            {/* Week Navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <Button variant="ghost" size="sm" onClick={() => setCurrentWeek(currentWeek - 1)} className="h-8 w-8 p-0">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="text-sm font-medium">
-                {weekDates[0].toLocaleDateString("es-ES", { month: "long", year: "numeric" })}
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => setCurrentWeek(currentWeek + 1)} className="h-8 w-8 p-0">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+        <div className="border rounded-lg p-3 bg-muted/30">
+          {/* Week Navigation */}
+          <div className="flex items-center justify-between mb-3">
+            <Button variant="ghost" size="sm" onClick={() => setCurrentWeek(currentWeek - 1)} className="h-8 w-8 p-0">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-sm font-medium">
+              {weekDates[0].toLocaleDateString("es-ES", { month: "long", year: "numeric" })}
             </div>
+            <Button variant="ghost" size="sm" onClick={() => setCurrentWeek(currentWeek + 1)} className="h-8 w-8 p-0">
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
 
-            {/* Calendar Grid */}
-            <div className="grid grid-cols-4 gap-2">
-              {dayNames.map((dayName, index) => {
-                const availableSlots = getAvailableSlotsForDay(index, weekDates[index])
+          {/* Calendar Grid */}
+          <div className="grid grid-cols-4 gap-2">
+            {dayNames.map((dayName, index) => {
+              const availableSlots = getAvailableSlotsForDay(index, weekDates[index])
 
-                return (
-                  <div key={dayName} className="text-center">
-                    <div className="font-medium text-xs mb-2 p-2 bg-background rounded border">
-                      <div>{dayName}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{formatDate(weekDates[index])}</div>
-                    </div>
-                    <div className="space-y-1">
-                      {availableSlots.map((slot, timeIndex) => {
-                        const convertedTime = convertTimeToUserTimezone(slot.time_slot)
+              return (
+                <div key={dayName} className="text-center">
+                  <div className="font-medium text-xs mb-2 p-2 bg-background rounded border">
+                    <div>{dayName}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{formatDate(weekDates[index])}</div>
+                  </div>
+                  <div className="space-y-1">
+                    {availableSlots.map((slot, timeIndex) => {
+                      const convertedTime = convertTimeToUserTimezone(slot.time_slot)
 
-                        if (slot.isBooked) {
-                          return (
-                            <div
-                              key={`${timeIndex}-${slot.modality}`}
-                              className="text-xs py-1 px-1 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed"
-                            >
-                              <div className="font-medium">{convertedTime}</div>
-                              <div className="flex items-center justify-center gap-1">
-                                {slot.modality === "online" ? (
-                                  <Video className="h-2 w-2" />
-                                ) : (
-                                  <MapPin className="h-2 w-2" />
-                                )}
-                              </div>
-                            </div>
-                          )
-                        }
-
+                      if (slot.isBooked) {
                         return (
-                          <Button
+                          <div
                             key={`${timeIndex}-${slot.modality}`}
-                            variant="outline"
-                            size="sm"
-                            className="w-full text-xs py-1 px-1 h-auto flex flex-col gap-0.5 bg-transparent"
-                            onClick={() => handleSlotClick(slot, weekDates[index])}
+                            className="text-xs py-1 px-1 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed"
                           >
                             <div className="font-medium">{convertedTime}</div>
                             <div className="flex items-center justify-center gap-1">
@@ -335,21 +314,40 @@ export function PsychologistCard({
                                 <MapPin className="h-2 w-2" />
                               )}
                             </div>
-                          </Button>
+                          </div>
                         )
-                      })}
-                      {availableSlots.length === 0 && (
-                        <div className="text-xs text-muted-foreground py-2 bg-muted rounded border-2 border-dashed">
-                          No disponible
-                        </div>
-                      )}
-                    </div>
+                      }
+
+                      return (
+                        <Button
+                          key={`${timeIndex}-${slot.modality}`}
+                          variant="outline"
+                          size="sm"
+                          className="w-full text-xs py-1 px-1 h-auto flex flex-col gap-0.5 bg-transparent"
+                          onClick={() => handleSlotClick(slot, weekDates[index])}
+                        >
+                          <div className="font-medium">{convertedTime}</div>
+                          <div className="flex items-center justify-center gap-1">
+                            {slot.modality === "online" ? (
+                              <Video className="h-2 w-2" />
+                            ) : (
+                              <MapPin className="h-2 w-2" />
+                            )}
+                          </div>
+                        </Button>
+                      )
+                    })}
+                    {availableSlots.length === 0 && (
+                      <div className="text-xs text-muted-foreground py-2 bg-muted rounded border-2 border-dashed">
+                        No disponible
+                      </div>
+                    )}
                   </div>
-                )
-              })}
-            </div>
+                </div>
+              )
+            })}
           </div>
-        )}
+        </div>
 
         {/* Price and CTA */}
         <div className="pt-2 border-t">
@@ -373,24 +371,24 @@ export function PsychologistCard({
           </div>
 
           <div className="space-y-2">
-            <Button
+            {/* <Button
               className="w-full"
               onClick={() => setShowCalendar(!showCalendar)}
               variant={showCalendar ? "secondary" : "default"}
             >
               <Calendar className="h-4 w-4 mr-2" />
               {showCalendar ? "Ocultar Horarios" : "Ver Horarios"}
-            </Button>
+            </Button> */}
 
-            {showCalendar && (
-              <Button
-                className="w-full bg-transparent"
-                variant="outline"
-                onClick={() => onViewAvailability(psychologist)}
-              >
-                Ver Calendario Completo
-              </Button>
-            )}
+            {/* {showCalendar && ( */}
+            {/* <Button
+              className="w-full bg-transparent"
+              variant="outline"
+              onClick={() => onViewAvailability(psychologist)}
+            >
+              Ver Calendario Completo
+            </Button> */}
+            {/* )} */}
           </div>
         </div>
       </CardContent>
