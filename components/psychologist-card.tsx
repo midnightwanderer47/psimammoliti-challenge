@@ -3,9 +3,9 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Star, MapPin, Clock, Award, Video, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react"
+import { Star, MapPin, Award, Video, ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { PsychologistWithSpecialties } from "@/lib/supabase"
 
 interface PsychologistCardProps {
@@ -23,7 +23,6 @@ export function PsychologistCard({
   bookedSessions = [],
   userTimezone = "",
 }: PsychologistCardProps) {
-  // const [showCalendar, setShowCalendar] = useState(false)
   const [currentWeek, setCurrentWeek] = useState(0)
 
   // Get unique modalities available for this psychologist
@@ -118,7 +117,71 @@ export function PsychologistCard({
         modality: slot.modality,
         isBooked: isSlotBooked(psychologist.id, date, slot.time_slot, slot.modality),
       }))
+      .filter((slot) => !slot.isBooked) // Only show available slots
       .slice(0, 3) // Show max 3 slots per day
+  }
+
+  // Check if a week has any available slots
+  const weekHasAvailability = (weekOffset: number) => {
+    const weekDates = getWeekDates(weekOffset)
+
+    for (let dayIndex = 0; dayIndex < 4; dayIndex++) {
+      const availableSlots = getAvailableSlotsForDay(dayIndex, weekDates[dayIndex])
+      if (availableSlots.length > 0) {
+        return true
+      }
+    }
+    return false
+  }
+
+  // Find the first week with availability starting from week 0
+  const findFirstWeekWithAvailability = () => {
+    for (let week = 0; week < 8; week++) {
+      // Check up to 8 weeks ahead
+      if (weekHasAvailability(week)) {
+        return week
+      }
+    }
+    return 0 // Fallback to current week if no availability found
+  }
+
+  // Initialize currentWeek to first week with availability
+  useEffect(() => {
+    const firstAvailableWeek = findFirstWeekWithAvailability()
+    setCurrentWeek(firstAvailableWeek)
+  }, [psychologist, bookedSessions, userTimezone])
+
+  // Navigation handlers that ensure we always show weeks with availability
+  const goToPreviousWeek = () => {
+    let newWeek = currentWeek - 1
+    let attempts = 0
+
+    // Find the previous week with availability (max 8 attempts to avoid infinite loop)
+    while (attempts < 8 && newWeek >= 0 && !weekHasAvailability(newWeek)) {
+      newWeek--
+      attempts++
+    }
+
+    // Only update if we found a valid week with availability
+    if (newWeek >= 0 && weekHasAvailability(newWeek)) {
+      setCurrentWeek(newWeek)
+    }
+  }
+
+  const goToNextWeek = () => {
+    let newWeek = currentWeek + 1
+    let attempts = 0
+
+    // Find the next week with availability (max 8 attempts to avoid infinite loop)
+    while (attempts < 8 && newWeek < 8 && !weekHasAvailability(newWeek)) {
+      newWeek++
+      attempts++
+    }
+
+    // Only update if we found a valid week with availability
+    if (newWeek < 8 && weekHasAvailability(newWeek)) {
+      setCurrentWeek(newWeek)
+    }
   }
 
   // Calculate total available slots (excluding past slots and booked slots)
@@ -159,6 +222,21 @@ export function PsychologistCard({
       modality: slot.modality,
     }
     onSlotSelect(psychologist, slotData)
+  }
+
+  // Check if navigation buttons should be disabled
+  const canGoToPrevious = () => {
+    for (let week = currentWeek - 1; week >= 0; week--) {
+      if (weekHasAvailability(week)) return true
+    }
+    return false
+  }
+
+  const canGoToNext = () => {
+    for (let week = currentWeek + 1; week < 8; week++) {
+      if (weekHasAvailability(week)) return true
+    }
+    return false
   }
 
   return (
@@ -232,55 +310,24 @@ export function PsychologistCard({
           {psychologist.description}
         </p>
 
-        {/* Available Modalities */}
-        {/* <div data-testid="modalities">
-          <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            Modalidades disponibles
-          </h4>
-          <div className="flex gap-2">
-            {availableModalities.map((modality) => (
-              <Badge key={modality} variant="outline" className="text-xs px-2 py-1">
-                <div className="flex items-center gap-1">
-                  {modality === "online" ? <Video className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
-                  {modality === "online" ? "Online" : "Presencial"}
-                </div>
-              </Badge>
-            ))}
-          </div>
-        </div> */}
-
-        {/* Availability indicator */}
-        {/* <div
-          data-testid="availability-indicator"
-          className={`flex items-center gap-2 text-xs p-2 rounded-lg ${
-            hasLowAvailability ? "text-orange-700 bg-orange-50 border border-orange-200" : "text-green-700 bg-green-50"
-          }`}
-        >
-          {hasLowAvailability ? (
-            <>
-              <AlertTriangle className="h-3 w-3" />
-              <span>Poca disponibilidad ({totalAvailableSlots} horarios)</span>
-            </>
-          ) : (
-            <>
-              <Clock className="h-3 w-3" />
-              <span>Disponible esta semana ({totalAvailableSlots} horarios)</span>
-            </>
-          )}
-        </div> */}
-
         {/* Integrated Calendar */}
         <div className="border rounded-lg p-3 bg-muted/30">
           {/* Week Navigation */}
           <div className="flex items-center justify-between mb-3">
-            <Button variant="ghost" size="sm" onClick={() => setCurrentWeek(currentWeek - 1)} className="h-8 w-8 p-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={goToPreviousWeek}
+              className="h-8 w-8 p-0"
+              disabled={!canGoToPrevious()}
+            >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <div className="text-sm font-medium">
               {weekDates[0].toLocaleDateString("es-ES", { month: "long", year: "numeric" })}
+              {currentWeek > 0 && <div className="text-xs text-muted-foreground">Semana {currentWeek + 1}</div>}
             </div>
-            <Button variant="ghost" size="sm" onClick={() => setCurrentWeek(currentWeek + 1)} className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" onClick={goToNextWeek} className="h-8 w-8 p-0" disabled={!canGoToNext()}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -300,30 +347,12 @@ export function PsychologistCard({
                     {availableSlots.map((slot, timeIndex) => {
                       const convertedTime = convertTimeToUserTimezone(slot.time_slot)
 
-                      if (slot.isBooked) {
-                        return (
-                          <div
-                            key={`${timeIndex}-${slot.modality}`}
-                            className="text-xs py-1 px-1 bg-red-50 border border-red-200 rounded text-red-600 cursor-not-allowed"
-                          >
-                            <div className="font-medium">{convertedTime}</div>
-                            <div className="flex items-center justify-center gap-1">
-                              {slot.modality === "online" ? (
-                                <Video className="h-2 w-2" />
-                              ) : (
-                                <MapPin className="h-2 w-2" />
-                              )}
-                            </div>
-                          </div>
-                        )
-                      }
-
                       return (
                         <Button
                           key={`${timeIndex}-${slot.modality}`}
                           variant="outline"
                           size="sm"
-                          className="w-full text-xs py-1 px-1 h-auto flex flex-col gap-0.5 bg-transparent"
+                          className="w-full text-xs py-1 px-1 h-auto flex flex-col gap-0.5 bg-transparent hover:bg-primary hover:text-primary-foreground"
                           onClick={() => handleSlotClick(slot, weekDates[index])}
                         >
                           <div className="font-medium">{convertedTime}</div>
@@ -347,6 +376,16 @@ export function PsychologistCard({
               )
             })}
           </div>
+
+          {/* Availability Summary */}
+          {totalAvailableSlots > 0 && (
+            <div className="mt-3 text-center">
+              <div className="text-xs text-muted-foreground">
+                {totalAvailableSlots} horario{totalAvailableSlots !== 1 ? "s" : ""} disponible
+                {totalAvailableSlots !== 1 ? "s" : ""} esta semana
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Price and CTA */}
@@ -368,27 +407,6 @@ export function PsychologistCard({
                     : "Presencial"}
               </div>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            {/* <Button
-              className="w-full"
-              onClick={() => setShowCalendar(!showCalendar)}
-              variant={showCalendar ? "secondary" : "default"}
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              {showCalendar ? "Ocultar Horarios" : "Ver Horarios"}
-            </Button> */}
-
-            {/* {showCalendar && ( */}
-            {/* <Button
-              className="w-full bg-transparent"
-              variant="outline"
-              onClick={() => onViewAvailability(psychologist)}
-            >
-              Ver Calendario Completo
-            </Button> */}
-            {/* )} */}
           </div>
         </div>
       </CardContent>
