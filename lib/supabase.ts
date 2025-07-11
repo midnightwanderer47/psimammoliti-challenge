@@ -15,6 +15,7 @@ export interface Psychologist {
   description: string
   timezone: string
   image_url: string
+  city?: string
   created_at: string
 }
 

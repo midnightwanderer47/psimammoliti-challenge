@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Star, MapPin, Award, Video, ChevronLeft, ChevronRight } from "lucide-react"
+import { Star, MapPin, Award, Video, ChevronLeft, ChevronRight, Brain } from "lucide-react"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import type { PsychologistWithSpecialties } from "@/lib/supabase"
@@ -327,7 +327,7 @@ export function PsychologistCard({
         {/* Specialties */}
         <div data-testid="specialties">
           <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
+            <Brain className="h-4 w-4" />
             Especialidades
           </h4>
           <div className="flex flex-wrap gap-1.5">
@@ -343,6 +343,7 @@ export function PsychologistCard({
             )}
           </div>
         </div>
+
 
         {/* Description */}
         <p data-testid="description" className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
@@ -515,10 +516,26 @@ export function PsychologistCard({
               <div className="text-xs text-muted-foreground">Modalidades</div>
               <div className="text-sm font-medium">
                 {availableModalities.length === 2
-                  ? "Online + Presencial"
+                  ? `Online + Presencial en ${psychologist.city}`
                   : availableModalities[0] === "online"
                     ? "Online"
-                    : "Presencial"}
+                    : `Presencial en ${psychologist.city}`}
+
+        {/* City Information - Only show for psychologists with in-person therapy */}
+        {/* {(() => {
+          const hasInPersonTherapy = psychologist.available_slots.some(slot => slot.modality === "presencial")
+          
+          // Only show city if they offer in-person therapy and have a city
+          if (hasInPersonTherapy && psychologist.city) {
+            return (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground justify-end">
+                <MapPin className="h-3 w-3" />
+                <span>{psychologist.city}</span>
+              </div>
+            )
+          }
+          return null
+        })()} */}
               </div>
             </div>
           </div>

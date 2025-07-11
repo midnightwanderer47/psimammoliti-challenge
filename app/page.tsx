@@ -490,7 +490,7 @@ export default function PsychologyApp() {
                           ) : (
                             <MapPin className="h-4 w-4" />
                           )}
-                          {selectedSlot.modality === "online" ? "Online" : "Presencial"}
+                          {selectedSlot.modality === "online" ? "Online" : `Presencial en ${selectedPsychologist.city}`}
                         </div>
                       </div>
                       <div>
