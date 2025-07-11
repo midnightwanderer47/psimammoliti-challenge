@@ -321,7 +321,7 @@ export function PsychologistCard({
             ))}
           </div>
           <span className="font-semibold">{psychologist.rating}</span>
-          <span className="text-xs text-muted-foreground">(127 reseñas)</span>
+          {/* <span className="text-xs text-muted-foreground">(127 reseñas)</span> */}
         </div>
 
         {/* Specialties */}
