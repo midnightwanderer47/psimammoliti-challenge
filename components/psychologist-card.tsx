@@ -63,11 +63,11 @@ export function PsychologistCard({
     const today = new Date()
     const currentDay = today.getDay()
     const monday = new Date(today)
-    monday.setDate(today.getDate() - currentDay + 1 + weekOffset * 7)
+    monday.setDate(today.getDate() - currentDay + 1 + weekOffset * 4) // Changed from *7 to *4 to show 4-day chunks
 
     const weekDates = []
     for (let i = 0; i < 4; i++) {
-      // Only show 4 days
+      // Show 4 consecutive days
       const date = new Date(monday)
       date.setDate(monday.getDate() + i)
       weekDates.push(date)
@@ -108,8 +108,12 @@ export function PsychologistCard({
 
   // Get available slots for a specific day
   const getAvailableSlotsForDay = (dayOfWeek: number, date: Date) => {
+    // Convert JavaScript day (0=Sunday, 1=Monday) to DB day (0=Monday, 6=Sunday)
+    const jsDay = date.getDay() // 0 = Sunday, 1 = Monday, etc.
+    const dbDay = jsDay === 0 ? 6 : jsDay - 1 // Convert: Sunday(0) -> 6, Monday(1) -> 0, etc.
+    
     return psychologist.available_slots
-      .filter((slot) => slot.day_of_week === dayOfWeek && slot.is_available)
+      .filter((slot) => slot.day_of_week === dbDay && slot.is_available)
       .filter((slot) => !isSlotInPast(date, slot.time_slot, userTimezone))
       .sort((a, b) => a.time_slot.localeCompare(b.time_slot))
       .map((slot) => ({
@@ -204,7 +208,6 @@ export function PsychologistCard({
 
   const hasLowAvailability = totalAvailableSlots <= 3
   const weekDates = getWeekDates(currentWeek)
-  const dayNames = ["Lun", "Mar", "Mié", "Jue"]
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("es-ES", {
@@ -241,7 +244,7 @@ export function PsychologistCard({
       date: date,
       originalTime: slot.time_slot,
       convertedTime: convertTimeToUserTimezone(slot.time_slot),
-      day: dayNames[weekDates.indexOf(date)],
+      day: date.toLocaleDateString("es-ES", { weekday: "short" }),
       modality: slot.modality,
     }
     onSlotSelect(psychologist, slotData)
@@ -359,14 +362,15 @@ export function PsychologistCard({
 
           {/* Calendar Grid */}
           <div className="grid grid-cols-4 gap-2">
-            {dayNames.map((dayName, index) => {
-              const availableSlots = getAvailableSlotsForDay(index, weekDates[index])
+            {weekDates.map((date, index) => {
+              const availableSlots = getAvailableSlotsForDay(date.getDay(), date)
+              const dayName = date.toLocaleDateString("es-ES", { weekday: "short" })
 
               return (
-                <div key={dayName} className="text-center">
+                <div key={index} className="text-center">
                   <div className="font-medium text-xs mb-2 p-2 bg-background rounded border">
                     <div>{dayName}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{formatDate(weekDates[index])}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{formatDate(date)}</div>
                   </div>
                   <div className="space-y-1">
                     {availableSlots.map((slot, timeIndex) => {
