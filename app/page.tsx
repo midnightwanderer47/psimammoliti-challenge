@@ -361,11 +361,11 @@ export default function PsychologyApp() {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
             <div className="w-2 h-2 bg-foreground rounded-full animate-pulse" />
-            Plataforma líder en salud mental online
+            Plataforma líder en salud mental
           </div>
-          <h1 className="text-5xl font-bold mb-4">Psimammoliti Online</h1>
+          <h1 className="text-5xl font-bold mb-4">Psimammoliti Hub</h1>
           <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Conecta con psicólogos profesionales certificados desde la comodidad de tu hogar
+            Conecta con psicólogos profesionales certificados, presencial o virtual
           </p>
 
           {/* Features */}
@@ -388,7 +388,7 @@ export default function PsychologyApp() {
             </div>
           </div>
 
-          {userTimezone && (
+          {/* {userTimezone && (
             <div
               data-testid="timezone-display"
               className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground"
@@ -396,7 +396,7 @@ export default function PsychologyApp() {
               <Clock className="h-4 w-4" />
               <span>Horarios en tu zona: {userTimezone}</span>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Status Banners */}
