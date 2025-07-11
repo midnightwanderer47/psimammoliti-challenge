@@ -27,6 +27,7 @@ export default function PsychologyApp() {
   const [selectedSlot, setSelectedSlot] = useState<any>(null)
   const [bookedAppointment, setBookedAppointment] = useState<any>(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [showBookingModal, setShowBookingModal] = useState(false)
   const [currentWeek, setCurrentWeek] = useState(0)
   const [userTimezone, setUserTimezone] = useState("")
   const [loading, setLoading] = useState(true)
@@ -105,6 +106,12 @@ export default function PsychologyApp() {
     setSelectedSpecialty("Todas")
     setSelectedModality("Todas")
     setSearchQuery("")
+  }
+
+  const handleSlotSelect = (psychologist: PsychologistWithSpecialties, slot: any) => {
+    setSelectedPsychologist(psychologist)
+    setSelectedSlot(slot)
+    setShowBookingModal(true)
   }
 
   const getWeekDates = (weekOffset = 0) => {
@@ -280,6 +287,7 @@ export default function PsychologyApp() {
         }
         setBookedAppointment(appointment)
         setShowConfirmation(true)
+        setShowBookingModal(false)
         setSelectedPsychologist(null)
         setSelectedSlot(null)
         setPatientName("")
@@ -373,7 +381,10 @@ export default function PsychologyApp() {
           </div>
 
           {userTimezone && (
-            <div data-testid="timezone-display" className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground">
+            <div
+              data-testid="timezone-display"
+              className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground"
+            >
               <Clock className="h-4 w-4" />
               <span>Horarios en tu zona: {userTimezone}</span>
             </div>
@@ -412,6 +423,7 @@ export default function PsychologyApp() {
                 key={psychologist.id}
                 psychologist={psychologist}
                 onViewAvailability={setSelectedPsychologist}
+                onSlotSelect={handleSlotSelect}
                 bookedSessions={bookedSessions}
                 userTimezone={userTimezone}
               />
@@ -421,9 +433,133 @@ export default function PsychologyApp() {
           <EmptyState type={psychologists.length === 0 ? "no-psychologists" : "no-results"} onReset={resetFilters} />
         )}
 
-        {/* Booking Modal */}
-        <Dialog open={!!selectedPsychologist} onOpenChange={() => setSelectedPsychologist(null)}>
-          <DialogContent data-testid="calendar" className="max-w-5xl max-h-[90vh] overflow-y-auto sm:max-w-5xl w-[95vw] sm:w-auto">
+        {/* Quick Booking Modal */}
+        <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-xl">Confirmar Cita</DialogTitle>
+              <DialogDescription>Completa tus datos para agendar la sesión</DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Selected Appointment Summary */}
+              {selectedSlot && selectedPsychologist && (
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-full overflow-hidden">
+                        <img
+                          src={selectedPsychologist.image_url || "/placeholder.svg"}
+                          alt={selectedPsychologist.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{selectedPsychologist.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedPsychologist.experience} de experiencia
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Fecha:</span>
+                        <div className="font-medium">
+                          {selectedSlot.date.toLocaleDateString("es-ES", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Hora:</span>
+                        <div className="font-medium">{selectedSlot.convertedTime}</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Modalidad:</span>
+                        <div className="font-medium flex items-center gap-1">
+                          {selectedSlot.modality === "online" ? (
+                            <Video className="h-4 w-4" />
+                          ) : (
+                            <MapPin className="h-4 w-4" />
+                          )}
+                          {selectedSlot.modality === "online" ? "Online" : "Presencial"}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Precio:</span>
+                        <div className="font-semibold text-lg">${selectedPsychologist.price} USD</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Patient Form */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Tus Datos</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="patientName">Nombre completo *</Label>
+                    <Input
+                      id="patientName"
+                      name="patientName"
+                      value={patientName}
+                      onChange={(e) => setPatientName(e.target.value)}
+                      placeholder="Tu nombre completo"
+                      className="mt-1"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="patientEmail">Correo electrónico *</Label>
+                    <Input
+                      id="patientEmail"
+                      name="patientEmail"
+                      type="email"
+                      value={patientEmail}
+                      onChange={(e) => setPatientEmail(e.target.value)}
+                      placeholder="tu@email.com"
+                      className="mt-1"
+                      required
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* CTA Button */}
+              <Button
+                className="w-full h-12 text-lg"
+                onClick={handleBookAppointment}
+                disabled={!selectedSlot || !patientName || !patientEmail || bookingLoading}
+              >
+                {bookingLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Confirmando tu cita...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    Confirmar Cita
+                  </>
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Full Calendar Booking Modal */}
+        <Dialog open={!!selectedPsychologist && !showBookingModal} onOpenChange={() => setSelectedPsychologist(null)}>
+          <DialogContent
+            data-testid="calendar"
+            className="max-w-5xl max-h-[90vh] overflow-y-auto sm:max-w-5xl w-[95vw] sm:w-auto"
+          >
             <DialogHeader>
               <DialogTitle className="text-2xl">Agendar Sesión - {selectedPsychologist?.name}</DialogTitle>
               <DialogDescription className="text-lg">
@@ -525,7 +661,7 @@ export default function PsychologyApp() {
                                 data-modality={slot.modality}
                                 variant={isSelected ? "default" : "outline"}
                                 size="sm"
-                                className={`w-full text-xs flex flex-col gap-1 h-auto py-2 ${isSelected ? 'selected' : 'available'}`}
+                                className={`w-full text-xs flex flex-col gap-1 h-auto py-2 ${isSelected ? "selected" : "available"}`}
                                 onClick={() => setSelectedSlot(slotData)}
                               >
                                 <div className="font-medium">{convertedTime}</div>
@@ -731,7 +867,10 @@ export default function PsychologyApp() {
 
               {/* Validation Error */}
               {(!patientName || !patientEmail) && (
-                <div data-testid="validation-error" className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+                <div
+                  data-testid="validation-error"
+                  className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-200"
+                >
                   Por favor completa todos los campos requeridos
                 </div>
               )}
@@ -813,7 +952,10 @@ export default function PsychologyApp() {
                   </div>
                 </div>
 
-                <div data-testid="session-instructions" className="text-sm text-muted-foreground bg-muted p-4 rounded-lg">
+                <div
+                  data-testid="session-instructions"
+                  className="text-sm text-muted-foreground bg-muted p-4 rounded-lg"
+                >
                   <p className="mb-2">
                     <strong>Próximos pasos:</strong>
                   </p>
