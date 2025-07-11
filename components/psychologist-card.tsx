@@ -3,14 +3,13 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Star, MapPin, Clock, Award, Video, AlertTriangle, Zap } from "lucide-react"
+import { Calendar, Star, MapPin, Clock, Award, Video, AlertTriangle } from "lucide-react"
 import Image from "next/image"
 import type { PsychologistWithSpecialties } from "@/lib/supabase"
 
 interface PsychologistCardProps {
   psychologist: PsychologistWithSpecialties
   onViewAvailability: (psychologist: PsychologistWithSpecialties) => void
-  onQuickBook: (psychologist: PsychologistWithSpecialties, slot: any) => void
   bookedSessions?: any[]
   userTimezone?: string
 }
@@ -18,7 +17,6 @@ interface PsychologistCardProps {
 export function PsychologistCard({
   psychologist,
   onViewAvailability,
-  onQuickBook,
   bookedSessions = [],
   userTimezone = "",
 }: PsychologistCardProps) {
@@ -55,45 +53,6 @@ export function PsychologistCard({
     }
   }
 
-  // Get next available slots for quick booking
-  const getNextAvailableSlots = () => {
-    const today = new Date()
-    const slots = []
-
-    // Check next 7 days
-    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
-      const checkDate = new Date(today)
-      checkDate.setDate(today.getDate() + dayOffset)
-      const dayOfWeek = checkDate.getDay()
-
-      const daySlots = psychologist.available_slots
-        .filter((slot) => slot.day_of_week === dayOfWeek && slot.is_available)
-        .filter((slot) => !isSlotInPast(checkDate, slot.time_slot, userTimezone))
-        .filter((slot) => !isSlotBooked(psychologist.id, checkDate, slot.time_slot, slot.modality))
-        .map((slot) => ({
-          ...slot,
-          date: checkDate,
-          dateString: checkDate.toLocaleDateString("es-ES", {
-            weekday: "short",
-            day: "numeric",
-            month: "short",
-          }),
-          isToday: dayOffset === 0,
-          isTomorrow: dayOffset === 1,
-        }))
-        .sort((a, b) => a.time_slot.localeCompare(b.time_slot))
-
-      slots.push(...daySlots)
-
-      // Stop when we have at least 3 slots or checked all days
-      if (slots.length >= 3) break
-    }
-
-    return slots.slice(0, 3)
-  }
-
-  const nextSlots = getNextAvailableSlots()
-
   // Calculate total available slots (excluding past slots and booked slots)
   const totalAvailableSlots = psychologist.available_slots.filter((slot) => {
     if (!slot.is_available) return false
@@ -116,23 +75,10 @@ export function PsychologistCard({
     return true
   }).length
 
-  const hasLowAvailability = totalAvailableSlots <= 3
-  const hasImmediateAvailability = nextSlots.some((slot) => slot.isToday || slot.isTomorrow)
+  const hasLowAvailability = totalAvailableSlots <= 3 // Consider 3 or fewer slots as low availability
 
   return (
-    <Card
-      data-testid="psychologist-card"
-      className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative"
-    >
-      {hasImmediateAvailability && (
-        <div className="absolute -top-2 -right-2 z-10">
-          <Badge className="bg-green-500 text-white text-xs px-2 py-1 shadow-lg">
-            <Zap className="h-3 w-3 mr-1" />
-            Disponible hoy
-          </Badge>
-        </div>
-      )}
-
+    <Card data-testid="psychologist-card" className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
       <CardHeader className="text-center pb-4">
         <div className="relative mx-auto mb-4">
           <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-border shadow-sm">
@@ -174,44 +120,6 @@ export function PsychologistCard({
           <span className="text-xs text-muted-foreground">(127 reseñas)</span>
         </div>
 
-        {/* Quick Booking Slots */}
-        {nextSlots.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <h4 className="font-medium text-sm mb-2 text-blue-800 flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              Próximos horarios
-            </h4>
-            <div className="space-y-2">
-              {nextSlots.map((slot, index) => (
-                <Button
-                  key={`${slot.date.toISOString()}-${slot.time_slot}-${slot.modality}`}
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-between text-xs h-8 bg-white hover:bg-blue-100 border-blue-200"
-                  onClick={() =>
-                    onQuickBook(psychologist, {
-                      ...slot,
-                      originalTime: slot.time_slot,
-                      convertedTime: slot.time_slot, // You might want to convert timezone here
-                      day: slot.dateString,
-                    })
-                  }
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">
-                      {slot.isToday ? "Hoy" : slot.isTomorrow ? "Mañana" : slot.dateString}
-                    </span>
-                    <span>{slot.time_slot}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {slot.modality === "online" ? <Video className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
-                  </div>
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Specialties */}
         <div data-testid="specialties">
           <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
@@ -231,6 +139,9 @@ export function PsychologistCard({
             )}
           </div>
         </div>
+
+        {/* Description */}
+        <p data-testid="description" className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{psychologist.description}</p>
 
         {/* Available Modalities */}
         <div data-testid="modalities">
@@ -252,7 +163,7 @@ export function PsychologistCard({
 
         {/* Availability indicator */}
         <div
-          data-testid="availability-indicator"
+         data-testid="availability-indicator"
           className={`flex items-center gap-2 text-xs p-2 rounded-lg ${
             hasLowAvailability ? "text-orange-700 bg-orange-50 border border-orange-200" : "text-green-700 bg-green-50"
           }`}
@@ -274,9 +185,7 @@ export function PsychologistCard({
         <div className="pt-2 border-t">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div data-testid="price" className="text-2xl font-bold">
-                ${psychologist.price}
-              </div>
+              <div data-testid="price" className="text-2xl font-bold">${psychologist.price}</div>
               <div className="text-xs text-muted-foreground">por sesión de 50 min</div>
             </div>
             <div className="text-right">
@@ -291,9 +200,9 @@ export function PsychologistCard({
             </div>
           </div>
 
-          <Button className="w-full bg-transparent" variant="outline" onClick={() => onViewAvailability(psychologist)}>
+          <Button className="w-full" onClick={() => onViewAvailability(psychologist)}>
             <Calendar className="h-4 w-4 mr-2" />
-            Ver Todos los Horarios
+            Ver Disponibilidad
           </Button>
         </div>
       </CardContent>

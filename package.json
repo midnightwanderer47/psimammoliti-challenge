@@ -8,9 +8,9 @@
     "lint": "next lint",
     "start": "next start",
     "test": "playwright test",
-    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
-    "test:ui": "playwright test --ui"
+    "test:debug": "playwright test --debug"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
